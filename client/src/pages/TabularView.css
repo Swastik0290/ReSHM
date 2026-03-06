@@ -1,0 +1,414 @@
+/* ═══════════════════════════════════════════════════════════
+   TabularView  –  Redesigned filter chips + responsive layout
+   Breakpoints: 320 → 375 → 475 → 600 → 1100
+═══════════════════════════════════════════════════════════ */
+
+.tabular-view {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Page title ──────────────────────────────────────────── */
+.page-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 12px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FILTER SECTION  –  glass-card container
+══════════════════════════════════════════════════════════ */
+.filters-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+}
+
+/* ── Time-range chip strip ───────────────────────────────── */
+.time-range-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individual chip */
+.time-range-buttons button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 13px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-main);
+  border-radius: 20px;
+  /* pill shape */
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: background 0.16s, border-color 0.16s, color 0.16s, box-shadow 0.16s;
+  min-height: 32px;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.time-range-buttons button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(20, 184, 166, .06);
+}
+
+/* Active chip: filled teal */
+.time-range-buttons button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(20, 184, 166, .35);
+}
+
+/* ── Custom date range row ───────────────────────────────── */
+.date-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.date-separator {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.date-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.16s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, .12);
+}
+
+/* When date range is the active "custom" filter, highlight inputs */
+.date-input.custom-active {
+  border-color: var(--accent);
+}
+
+/* ── Action buttons ──────────────────────────────────────── */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2px;
+}
+
+.export-btn,
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.16s, box-shadow 0.16s;
+  min-height: 36px;
+  flex: 1;
+  justify-content: center;
+}
+
+.export-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(20, 184, 166, .28);
+}
+
+.export-btn:hover {
+  background: var(--accent-hover, #0d9488);
+  box-shadow: 0 3px 10px rgba(20, 184, 166, .35);
+}
+
+.refresh-btn {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-color);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(20, 184, 166, .05);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Table container ─────────────────────────────────────── */
+.table-container {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 10px;
+}
+
+.readings-table-full {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 640px;
+}
+
+.readings-table-full thead {
+  background: var(--bg-main);
+}
+
+.readings-table-full th {
+  padding: 9px 8px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.readings-table-full td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.readings-table-full tbody tr:hover {
+  background: var(--bg-main);
+}
+
+/* ── Pagination ──────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.limit-select {
+  padding: 5px 8px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 7px;
+  font-size: 12px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-height: 34px;
+  transition: background 0.16s, border-color 0.16s, color 0.16s;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(20, 184, 166, .05);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 6px rgba(20, 184, 166, .3);
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: 28px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BREAKPOINTS
+════════════════════════════════════════════════════════════ */
+
+/* 375px */
+@media (min-width: 375px) {
+  .page-title {
+    font-size: 20px;
+  }
+
+  .time-range-buttons button {
+    font-size: 13px;
+    padding: 6px 15px;
+    min-height: 34px;
+  }
+
+  .export-btn,
+  .refresh-btn {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+
+  .readings-table-full {
+    font-size: 13px;
+  }
+
+  .readings-table-full th {
+    font-size: 11px;
+  }
+}
+
+/* 475px — large mobile */
+@media (min-width: 475px) {
+  .page-title {
+    font-size: 21px;
+  }
+
+  .filters-section {
+    padding: 14px;
+  }
+
+  .export-btn,
+  .refresh-btn {
+    flex: 0 0 auto;
+  }
+
+  .table-container {
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
+
+/* 600px — tablet: filters in a row */
+@media (min-width: 600px) {
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .filters-section {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .time-range-buttons {
+    flex: 1 1 auto;
+  }
+
+  .date-filters {
+    flex: 1 1 auto;
+  }
+
+  .action-buttons {
+    margin-left: auto;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  .pagination {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .readings-table-full th {
+    font-size: 12px;
+  }
+
+  .readings-table-full td {
+    font-size: 14px;
+  }
+}
+
+/* 1100px — desktop */
+@media (min-width: 1100px) {
+  .page-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .table-container {
+    padding: 16px;
+  }
+
+  .time-range-buttons button {
+    font-size: 14px;
+    padding: 7px 18px;
+    min-height: 36px;
+  }
+}

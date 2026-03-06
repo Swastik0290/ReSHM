@@ -1,0 +1,136 @@
+/* Card must be a flex column so map-wrap can grow to fill remaining height */
+.current-location {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+/* ── Card header: title LEFT, Map/Satellite RIGHT — one row ── */
+.location-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* card7 bento override removes padding, so add it here */
+  padding: 14px 16px 8px 16px;
+}
+
+.location-card-header .card-title {
+  margin-bottom: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-map-type {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+}
+
+.location-map-type button {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.location-map-type button.active {
+  background: #14b8a6;
+  color: #fff;
+  border-color: #14b8a6;
+}
+
+.location-map-type button:not(.active):hover {
+  background: var(--bg-main);
+}
+
+/* ── Map wrapper — fills remaining card height, relative for overlay ── */
+.location-map-wrap {
+  position: relative;
+  flex: 1;
+  /* grow to fill all card height after the header */
+  min-height: 0;
+  /* allow flex child to shrink below content size */
+  overflow: hidden;
+  margin: 0 0 6px 0;
+  /* small gap at the bottom */
+}
+
+/* ── Coords overlay — floats bottom-left over the map ── */
+.location-coords-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 500;
+  /* above leaflet tiles (z:400), below popups (z:600) */
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 8px;
+  padding: 7px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  /* don't block map interactions */
+}
+
+.coord-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.coord-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  min-width: 26px;
+}
+
+.coord-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .location-coords-overlay {
+    background: rgba(30, 30, 40, 0.88);
+  }
+
+  .coord-label {
+    color: #9ca3af;
+  }
+
+  .coord-value {
+    color: #f9fafb;
+  }
+}
+
+.no-location {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+  font-size: 15px;
+}

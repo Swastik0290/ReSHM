@@ -1,0 +1,224 @@
+/* ═══════════════════════════════════════════════════════════
+   Login  –  Mobile-first
+═══════════════════════════════════════════════════════════ */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px;
+}
+
+.login-card {
+  background: var(--bg-card);
+  padding: 28px 22px;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .15);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.login-subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input {
+  padding: 13px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 16px;
+  /* prevents iOS zoom-in on focus */
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: border-color 0.18s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, .12);
+}
+
+/* Password field */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  padding-right: 46px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.18s;
+  /* large touch target */
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.password-toggle:hover {
+  color: var(--accent);
+}
+
+/* Divider */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+/* Google button */
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  min-height: 48px;
+}
+
+.google-button:hover {
+  background: var(--bg-main);
+  border-color: var(--accent);
+}
+
+.google-button img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-button-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.google-button-wrapper iframe,
+.google-button-wrapper div[role="button"] {
+  width: 100% !important;
+}
+
+.google-button-wrapper>div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Submit button */
+.login-button {
+  padding: 14px;
+  background: var(--btn-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+  min-height: 50px;
+  letter-spacing: 0.01em;
+}
+
+.login-button:hover:not(:disabled) {
+  background: var(--btn-primary-hover);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error */
+.error-message {
+  padding: 12px;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-radius: 9px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── Larger screens ──────────────────────────────────────── */
+@media (min-width: 420px) {
+  .login-card {
+    padding: 36px 36px;
+  }
+
+  .login-title {
+    font-size: 32px;
+  }
+}

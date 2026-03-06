@@ -1,0 +1,134 @@
+.location-picker {
+  margin-bottom: 12px;
+}
+
+.location-picker-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary, #333);
+  margin-bottom: 6px;
+}
+
+.location-picker-search-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.location-picker-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-card, #fff);
+  color: var(--text-primary, #333);
+}
+
+.location-picker-search:focus {
+  outline: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+}
+
+.location-picker-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color, #ddd);
+  border-top-color: #14b8a6;
+  border-radius: 50%;
+  animation: location-picker-spin 0.7s linear infinite;
+}
+
+@keyframes location-picker-spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.location-picker-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.location-picker-suggestion-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-primary, #333);
+  cursor: pointer;
+}
+
+.location-picker-suggestion-item:hover {
+  background: var(--bg-main, #f5f5f5);
+}
+
+.location-picker-address {
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: var(--bg-main, #f8f9fa);
+  border-radius: 6px;
+}
+
+.location-picker-address-label {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.location-picker-map-wrap {
+  margin-bottom: 6px;
+}
+
+.location-picker-map-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.location-picker-map-toggle button {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  background: var(--bg-card, #fff);
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+}
+
+.location-picker-map-toggle button.active {
+  background: #14b8a6;
+  color: #fff;
+  border-color: #14b8a6;
+}
+
+.location-picker-map-toggle button:not(.active):hover {
+  background: var(--bg-main, #f5f5f5);
+}
+
+.location-picker-hint {
+  font-size: 11px;
+  color: var(--text-secondary, #888);
+  margin: 0;
+}
+
+/* ── Globally hide Leaflet attribution watermark ───────────── */
+.leaflet-control-attribution {
+  display: none !important;
+}

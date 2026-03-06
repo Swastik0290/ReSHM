@@ -1,0 +1,322 @@
+/* ═══════════════════════════════════════════════════════════
+   Profile  –  320 / 375 / 475 mobile breakpoints
+═══════════════════════════════════════════════════════════ */
+.profile-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Headings — base 320px ───────────────────────────────── */
+.profile-page h1 {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.profile-subtitle {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.profile-loading {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.profile-card {
+  background: var(--bg-card);
+  padding: 13px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .06);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.profile-card h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 10px;
+  background: var(--bg-main);
+  border-radius: 7px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.info-label {
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.info-value {
+  color: var(--text-primary);
+  font-size: 12px;
+  text-transform: capitalize;
+  word-break: break-all;
+}
+
+/* ── Admin users table ───────────────────────────────────── */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 500px;
+}
+
+.users-table th {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.user-name-cell {
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status-badge.verified {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+[data-theme="dark"] .status-badge.verified {
+  background: rgba(16, 185, 129, .22);
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .status-badge.pending {
+  background: rgba(245, 158, 11, .22);
+  color: #fcd34d;
+}
+
+/* Action buttons */
+.actions-cell {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.actions-cell button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 30px;
+  white-space: nowrap;
+}
+
+.btn-verify {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.btn-verify:hover {
+  background: #a7f3d0;
+}
+
+.btn-edit {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.btn-edit:hover {
+  background: #bae6fd;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+.btn-save {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-save:hover {
+  background: var(--accent-hover);
+}
+
+.btn-cancel {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.users-table select {
+  padding: 4px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 12px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* ════════════════════════════════════════════════════════════
+   BREAKPOINTS
+════════════════════════════════════════════════════════════ */
+
+/* 375px */
+@media (min-width: 375px) {
+  .profile-page h1 {
+    font-size: 20px;
+  }
+
+  .profile-subtitle {
+    font-size: 13px;
+  }
+
+  .profile-card {
+    padding: 14px;
+  }
+
+  .profile-card h2 {
+    font-size: 15px;
+  }
+
+  .info-label {
+    font-size: 13px;
+  }
+
+  .info-value {
+    font-size: 13px;
+  }
+
+  .users-table {
+    font-size: 13px;
+  }
+
+  .users-table th {
+    font-size: 11px;
+  }
+
+  .actions-cell button {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .status-badge {
+    font-size: 11px;
+  }
+}
+
+/* 475px */
+@media (min-width: 475px) {
+  .profile-page h1 {
+    font-size: 21px;
+  }
+
+  .profile-card {
+    padding: 16px;
+    border-radius: 11px;
+  }
+
+  .profile-card h2 {
+    font-size: 16px;
+  }
+
+  .profile-content {
+    gap: 12px;
+  }
+}
+
+/* 600px+ */
+@media (min-width: 600px) {
+  .profile-page h1 {
+    font-size: 23px;
+  }
+
+  .profile-card {
+    padding: 20px 22px;
+  }
+
+  .profile-card h2 {
+    font-size: 17px;
+  }
+
+  .users-table {
+    font-size: 14px;
+  }
+
+  .users-table th {
+    font-size: 12px;
+  }
+
+  .actions-cell button {
+    font-size: 13px;
+    padding: 6px 12px;
+    min-height: 32px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .profile-page h1 {
+    font-size: 25px;
+  }
+
+  .profile-card {
+    padding: 22px 24px;
+  }
+
+  .profile-card h2 {
+    font-size: 18px;
+  }
+}
