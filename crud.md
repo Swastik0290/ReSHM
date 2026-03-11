@@ -81,8 +81,10 @@ Each reading posted by the hardware creates a **SensorReading** document.
 | `coSensor2` | Number | — | `0` | CO reading from sensor 2 in ppm |
 | `oxygen` | Number | — | `21` | Oxygen level in % (`0` to `100`) |
 | `pulse` | Number | — | `72` | Heart rate in BPM (`0` to `300`) |
+| `altitude` | Number | — | `null` | Altitude in meters above sea level |
 | `smokeDetected` | Boolean | — | `false` | `true` when smoke is detected |
 | `fireDetected` | Boolean | — | `false` | `true` when fire is detected |
+| `source` | String | — | `Unknown` | Connection type: `Modem`, `LAN`, `WIFI`, or `Unknown` |
 
 > **Threshold Alerts** are generated automatically on every ingest:
 >
@@ -230,7 +232,9 @@ Content-Type: application/json
   "oxygen":        20.9,
   "pulse":         75,
   "smokeDetected": false,
-  "fireDetected":  false
+  "fireDetected":  false,
+  "altitude":      150.5,
+  "source":        "LAN"
 }
 ```
 
@@ -360,3 +364,39 @@ Returns the **latest reading** plus up to **100 readings from the last 24 hours*
 | `404 Not Found` | Room or reading does not exist |
 | `409 Conflict` | `deviceId` already used by another room |
 | `500 Internal Server Error` | Unexpected server error — check server logs |
+| `409 Conflict` | `deviceId` already used by another room |
+| `500 Internal Server Error` | Unexpected server error — check server logs |
+| `503 Service Unavailable`| Database connection issues |
+
+---
+
+## How to Run the Project
+
+To run the project locally for development or testing:
+
+1.  **Install All Dependencies**  
+    Run this in the root directory to install both client and server packages:
+    ```bash
+    npm run install-all
+    ```
+
+2.  **Start Development Servers**  
+    This command will start the Backend (Port 5000) and Frontend (Port 3000) concurrently:
+    ```bash
+    npm run dev
+    ```
+
+3.  **Individual Components** (Optional)  
+    If you want to run them separately in different terminals:
+    - **Backend only:** `cd server && npm run dev`
+    - **Frontend only:** `cd client && npm start`
+
+4.  **Production Build**  
+    To create an optimized production bundle for the frontend:
+    ```bash
+    cd client && npm run build
+    ```
+
+---
+
+*Last Updated: March 2024*

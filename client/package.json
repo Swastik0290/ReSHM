@@ -18,7 +18,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "npx cross-env ALLOWED_HOSTS=all HOST=localhost react-scripts start",
+    "start": "npx cross-env ALLOWED_HOSTS=all react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

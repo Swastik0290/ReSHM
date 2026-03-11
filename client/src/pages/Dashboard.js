@@ -13,7 +13,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { state: navState } = useLocation();
   const settings = useSettings();
-  const { setSelectedRoomId } = useRoom();
+  const { selectedRoomId, setSelectedRoomId } = useRoom();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,14 +57,13 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // If context already has a selected room, load that.
-    // Otherwise fallback to user.assignedRoom or the first available.
-    if (selectedRoomId) {
+    if (rooms.length === 0) {
+      fetchRoomsAndData();
+    } else if (selectedRoomId && selectedRoomId !== roomId) {
       setRoomId(selectedRoomId);
       fetchDashboardData(selectedRoomId);
-    } else {
-      fetchRoomsAndData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, selectedRoomId]);
 
   // Handle setting up Server-Sent Events (SSE) when a roomId is selected
@@ -115,8 +114,9 @@ const Dashboard = () => {
       setRooms(roomList);
       if (roomList.length > 0) {
         const preferredId = user.role === 'admin' && navState?.roomId ? navState.roomId : null;
+        const currentTargetId = selectedRoomId || preferredId || roomId;
         const room = user.role === 'admin'
-          ? (roomList.find(r => r._id === (preferredId || roomId)) || roomList[0])
+          ? (roomList.find(r => r._id === currentTargetId) || roomList[0])
           : roomList.find(r => r._id === user.assignedRoom) || roomList[0];
         if (room) {
           setRoomId(room._id);
@@ -141,6 +141,8 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setError('Failed to load sensor data');
+    } finally {
+      setLoading(false);
     }
   };
 
