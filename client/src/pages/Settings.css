@@ -53,8 +53,12 @@
   margin-bottom: 5px;
 }
 
-.setting-item select {
+.setting-item select,
+.setting-item input[type="email"],
+.setting-item input[type="password"],
+.setting-item input[type="text"] {
   width: 100%;
+  box-sizing: border-box;
   padding: 9px 11px;
   border: 1px solid var(--border-color);
   border-radius: 8px;

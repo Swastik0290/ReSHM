@@ -57,8 +57,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchRoomsAndData();
-  }, [user]);
+    // If context already has a selected room, load that.
+    // Otherwise fallback to user.assignedRoom or the first available.
+    if (selectedRoomId) {
+      setRoomId(selectedRoomId);
+      fetchDashboardData(selectedRoomId);
+    } else {
+      fetchRoomsAndData();
+    }
+  }, [user, selectedRoomId]);
 
   // Handle setting up Server-Sent Events (SSE) when a roomId is selected
   useEffect(() => {
@@ -74,13 +81,12 @@ const Dashboard = () => {
           return;
         }
 
-        // It's a new reading. Update dashboardData if we have it
+        // It's a new reading. Update dashboardData if we have it or start fresh
         setDashboardData((prev) => {
-          if (!prev) return prev;
-
+          const prevTrends = prev?.trends || [];
           return {
             latest: data, // Replace latest with incoming reading
-            trends: [data, ...(prev.trends || [])].slice(0, 100), // Push to start of trends, keep max 100
+            trends: [data, ...prevTrends].slice(0, 100), // Push to start of trends, keep max 100
           };
         });
 

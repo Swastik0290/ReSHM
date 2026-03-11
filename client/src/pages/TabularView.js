@@ -29,10 +29,11 @@ const TabularView = () => {
   const [filters, setFilters] = useState(getTodayRange);
 
   useEffect(() => {
-    // If a room is already selected in the Dashboard context, use it directly.
-    // Otherwise fall back to fetching the first available room.
+    // Check if selecting a Room Context exists and sets correctly.
     if (selectedRoomId) {
-      setRoomId(selectedRoomId);
+      if (selectedRoomId !== roomId) {
+        setRoomId(selectedRoomId);
+      }
     } else {
       fetchRooms();
     }
@@ -42,7 +43,7 @@ const TabularView = () => {
     if (roomId) {
       fetchReadings();
     }
-  }, [roomId, filters.startDate, filters.endDate, pagination.skip]);
+  }, [roomId, filters.startDate, filters.endDate, pagination.skip, pagination.limit]);
 
   // Handle setting up Server-Sent Events (SSE) when a roomId is selected
   useEffect(() => {
@@ -60,17 +61,15 @@ const TabularView = () => {
           // We only want to prepend if we are looking at page 1 so user view doesn't arbitrarily change otherwise
           if (pagination.skip !== 0) return prevReadings;
 
-          // Verify it matches active time range (e.g. today)
-          const readDate = new Date(data.timestamp);
-          const filterStart = new Date(filters.startDate + 'T00:00:00');
-          const filterEnd = new Date(filters.endDate + 'T23:59:59');
-
-          if (readDate >= filterStart && readDate <= filterEnd) {
-            const newArray = [data, ...prevReadings];
-            return newArray.slice(0, pagination.limit); // limit displayed according to user settings
+          // Note: When appending live reading, bypass the strict "today" equality filter 
+          // because JS localized `Date.now()` vs ISO midnight dates causes edge-case drop bugs.
+          // Since it's live streaming right now, it definitively belongs in 'today' or 'custom' ending today.
+          if (filters.timeRange === 'yesterday' || filters.timeRange === 'lastmonth') {
+            return prevReadings; // Explicitly don't show live readings if actively looking at the past
           }
 
-          return prevReadings;
+          const newArray = [data, ...prevReadings];
+          return newArray.slice(0, pagination.limit); // limit displayed according to user settings
         });
 
       } catch (err) {

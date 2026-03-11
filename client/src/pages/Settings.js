@@ -137,7 +137,6 @@ const Settings = () => {
               value={settings.senderEmail || ''}
               onChange={(e) => updateSetting('senderEmail', e.target.value)}
               placeholder="your_email@gmail.com"
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', marginBottom: '15px', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -149,7 +148,6 @@ const Settings = () => {
               value={settings.senderPassword || ''}
               onChange={(e) => updateSetting('senderPassword', e.target.value)}
               placeholder="16-character app password"
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
           </div>
         </div>
