@@ -192,3 +192,78 @@
     padding: 22px 24px;
   }
 }
+
+/* ── Email List ──────────────────────────────────────────── */
+.email-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.email-input-row input {
+  flex: 1;
+  padding: 9px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.email-input-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.email-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  background: var(--btn-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.email-add-btn:hover {
+  background: var(--btn-primary-hover);
+}
+
+.email-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.email-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.email-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.email-remove-btn:hover {
+  color: var(--error-text);
+  background: rgba(239, 68, 68, 0.1);
+}

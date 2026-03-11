@@ -44,6 +44,43 @@ const TabularView = () => {
     }
   }, [roomId, filters.startDate, filters.endDate, pagination.skip]);
 
+  // Handle setting up Server-Sent Events (SSE) when a roomId is selected
+  useEffect(() => {
+    if (!roomId) return;
+
+    const eventSource = new EventSource(`/api/sensor/stream/${roomId}`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'connected') return;
+
+        // Add new reading to table (unshifting so it appears at top)
+        setReadings((prevReadings) => {
+          // We only want to prepend if we are looking at page 1 so user view doesn't arbitrarily change otherwise
+          if (pagination.skip !== 0) return prevReadings;
+
+          // Verify it matches active time range (e.g. today)
+          const readDate = new Date(data.timestamp);
+          const filterStart = new Date(filters.startDate + 'T00:00:00');
+          const filterEnd = new Date(filters.endDate + 'T23:59:59');
+
+          if (readDate >= filterStart && readDate <= filterEnd) {
+            const newArray = [data, ...prevReadings];
+            return newArray.slice(0, pagination.limit); // limit displayed according to user settings
+          }
+
+          return prevReadings;
+        });
+
+      } catch (err) {
+        console.error('Failed to parse SSE event data', err);
+      }
+    };
+
+    return () => eventSource.close();
+  }, [roomId, filters.startDate, filters.endDate, pagination]);
+
   const fetchRooms = async () => {
     try {
       const roomsResponse = await axios.get('/api/rooms');
@@ -128,15 +165,19 @@ const TabularView = () => {
     if (readings.length === 0) return;
     const data = readings.map(reading => ({
       Timestamp: new Date(reading.timestamp).toLocaleString('en-IN'),
-      'Lat (°)': reading.location.latitude,
-      'Lon (°)': reading.location.longitude,
-      'Temp (°C)': Number(reading.temperature.toFixed(1)),
-      'Hum (%)': Number(reading.humidity.toFixed(0)),
-      'CO S1 (ppm)': Number(reading.coSensor1.toFixed(0)),
-      'CO S2 (ppm)': Number(reading.coSensor2.toFixed(0)),
-      'CO2 (ppm)': Number(reading.co2.toFixed(0)),
-      'SPO2 (%)': Number(reading.oxygen.toFixed(0)),
+      'Lat (°)': reading.location?.latitude ?? '',
+      'Lon (°)': reading.location?.longitude ?? '',
+      'Altitude (m)': reading.altitude != null ? Number(reading.altitude.toFixed(1)) : '',
+      'Temp (°C)': Number((reading.temperature ?? 0).toFixed(1)),
+      'Hum (%)': Number((reading.humidity ?? 0).toFixed(0)),
+      'CO S1 (ppm)': Number((reading.coSensor1 ?? 0).toFixed(2)),
+      'CO S2 (ppm)': Number((reading.coSensor2 ?? 0).toFixed(2)),
+      'CO₂ (ppm)': Number((reading.co2 ?? 0).toFixed(0)),
+      'SpO2 (%)': Number((reading.oxygen ?? 0).toFixed(0)),
+      'Pulse (bpm)': Number((reading.pulse ?? 0).toFixed(0)),
       'Smoke Detected': reading.smokeDetected ? 'Yes' : 'No',
+      'Fire Detected': reading.fireDetected ? 'Yes' : 'No',
+      Source: reading.source || 'Unknown',
       Alerts: (reading.alerts || []).join('; ')
     }));
 
@@ -249,31 +290,41 @@ const TabularView = () => {
                   <th>Timestamp</th>
                   <th>Lat</th>
                   <th>Lon</th>
+                  <th>Altitude</th>
                   <th>Temp</th>
                   <th>Hum</th>
                   <th>CO S1</th>
                   <th>CO S2</th>
                   <th>CO₂</th>
                   <th>SpO2</th>
+                  <th>Pulse</th>
+                  <th>Smoke</th>
+                  <th>Fire</th>
+                  <th>Source</th>
                 </tr>
               </thead>
               <tbody>
                 {readings.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="no-data">No readings available</td>
+                    <td colSpan="14" className="no-data">No readings available</td>
                   </tr>
                 ) : (
                   readings.map((reading) => (
                     <tr key={reading._id}>
                       <td>{formatTime(reading.timestamp)}</td>
-                      <td>{reading.location.latitude.toFixed(1)}°</td>
-                      <td>{reading.location.longitude.toFixed(1)}°</td>
-                      <td>{reading.temperature.toFixed(1)}°C</td>
-                      <td>{reading.humidity.toFixed(0)}%</td>
-                      <td>{reading.coSensor1.toFixed(0)} ppm</td>
-                      <td>{reading.coSensor2.toFixed(0)} ppm</td>
-                      <td>{reading.co2.toFixed(0)} ppm</td>
-                      <td>{reading.oxygen.toFixed(0)}%</td>
+                      <td>{reading.location?.latitude?.toFixed(1) ?? '—'}°</td>
+                      <td>{reading.location?.longitude?.toFixed(1) ?? '—'}°</td>
+                      <td>{reading.altitude != null ? `${reading.altitude.toFixed(1)} m` : '—'}</td>
+                      <td>{(reading.temperature ?? 0).toFixed(1)}°C</td>
+                      <td>{(reading.humidity ?? 0).toFixed(0)}%</td>
+                      <td>{(reading.coSensor1 ?? 0).toFixed(2)} ppm</td>
+                      <td>{(reading.coSensor2 ?? 0).toFixed(2)} ppm</td>
+                      <td>{(reading.co2 ?? 0).toFixed(0)} ppm</td>
+                      <td>{(reading.oxygen ?? 0).toFixed(0)}%</td>
+                      <td>{(reading.pulse ?? 0).toFixed(0)} bpm</td>
+                      <td>{reading.smokeDetected ? '🔴 Yes' : '✅ No'}</td>
+                      <td>{reading.fireDetected ? '🔴 Yes' : '✅ No'}</td>
+                      <td>{reading.source || 'Unknown'}</td>
                     </tr>
                   ))
                 )}

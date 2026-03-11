@@ -18,7 +18,7 @@ const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 function ThemeSync() {
   useEffect(() => {
-    const stored = localStorage.getItem('svasa_settings');
+    const stored = localStorage.getItem('reshm_settings');
     if (stored) {
       try {
         const { darkMode } = JSON.parse(stored);

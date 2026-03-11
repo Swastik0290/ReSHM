@@ -29,6 +29,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/sensor', require('./routes/sensor'));
 app.use('/api/rooms', require('./routes/rooms'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/sos', require('./routes/sos'));
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -38,7 +39,7 @@ app.get('/api/health', (req, res) => {
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/svasa-metric');
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);

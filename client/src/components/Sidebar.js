@@ -33,7 +33,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, onMobileClose }) => {
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
-        {!collapsed && <h2 className="sidebar-title">Svasa Metric</h2>}
+        {!collapsed && <h2 className="sidebar-title">ReSHM</h2>}
         <button className="toggle-btn" onClick={() => setCollapsed(!collapsed)} aria-label="Toggle sidebar">
           <FiMenu />
         </button>

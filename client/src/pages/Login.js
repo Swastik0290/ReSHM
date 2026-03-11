@@ -32,25 +32,25 @@ const Login = () => {
     setLoading(true);
 
     const result = await login(email, password);
-    
+
     if (result.success) {
       navigate('/dashboard');
     } else {
       setError(result.message);
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Svasa Metric</h1>
+        <h1 className="login-title">ReSHM</h1>
         <p className="login-subtitle">Room Sensor Monitoring Dashboard</p>
-        
+
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">Email or Username</label>
             <input
@@ -63,7 +63,7 @@ const Login = () => {
               autoComplete="username"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <div className="password-input-wrapper">
@@ -87,7 +87,7 @@ const Login = () => {
               </button>
             </div>
           </div>
-          
+
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
@@ -109,7 +109,7 @@ const Login = () => {
             </>
           )}
         </form>
-        
+
         <p className="login-footer">
           Don't have an account? <Link to="/register">Register here</Link>
         </p>

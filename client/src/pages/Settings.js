@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { FiX, FiPlus } from 'react-icons/fi';
 import './Settings.css';
 
-const SETTINGS_KEY = 'svasa_settings';
+const SETTINGS_KEY = 'reshm_settings';
 
 const defaultSettings = {
   timezone: 'Asia/Kolkata',
   refreshInterval: 30,
+  refreshInterval: 30,
   alertsEnabled: true,
-  darkMode: false
+  darkMode: false,
+  senderEmail: '',
+  senderPassword: '',
+  emergencyEmails: []
 };
 
 const Settings = () => {
   const [settings, setSettings] = useState(defaultSettings);
   const [saved, setSaved] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem(SETTINGS_KEY);
@@ -30,6 +36,21 @@ const Settings = () => {
     setSaved(false);
   };
 
+  const addEmail = () => {
+    if (!newEmail || !/^\S+@\S+\.\S+$/.test(newEmail)) return;
+    const currentEmails = settings.emergencyEmails || [];
+    if (currentEmails.includes(newEmail)) {
+      setNewEmail('');
+      return;
+    }
+    updateSetting('emergencyEmails', [...currentEmails, newEmail]);
+    setNewEmail('');
+  };
+
+  const removeEmail = (email) => {
+    updateSetting('emergencyEmails', (settings.emergencyEmails || []).filter(e => e !== email));
+  };
+
   const saveSettings = () => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     document.documentElement.setAttribute('data-theme', settings.darkMode ? 'dark' : 'light');
@@ -43,7 +64,7 @@ const Settings = () => {
       <div className="settings-content">
         <div className="settings-card">
           <h2 className="settings-section-title">General</h2>
-          
+
           <div className="setting-item">
             <label htmlFor="timezone">Timezone</label>
             <select
@@ -76,7 +97,7 @@ const Settings = () => {
 
         <div className="settings-card">
           <h2 className="settings-section-title">Notifications</h2>
-          
+
           <div className="setting-item setting-toggle">
             <label htmlFor="alertsEnabled">Show alert notifications</label>
             <input
@@ -90,7 +111,7 @@ const Settings = () => {
 
         <div className="settings-card">
           <h2 className="settings-section-title">Appearance</h2>
-          
+
           <div className="setting-item setting-toggle">
             <label htmlFor="darkMode">Dark mode</label>
             <input
@@ -100,6 +121,72 @@ const Settings = () => {
               onChange={(e) => updateSetting('darkMode', e.target.checked)}
             />
           </div>
+        </div>
+
+        <div className="settings-card">
+          <h2 className="settings-section-title">Sender Email Configuration (SOS)</h2>
+          <p className="settings-description" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '15px' }}>
+            Configure the email account that will <strong>send</strong> the SOS alerts. If you use Gmail, you must use an <strong>App Password</strong>.
+          </p>
+
+          <div className="setting-item">
+            <label htmlFor="senderEmail">Sender Email Address</label>
+            <input
+              type="email"
+              id="senderEmail"
+              value={settings.senderEmail || ''}
+              onChange={(e) => updateSetting('senderEmail', e.target.value)}
+              placeholder="your_email@gmail.com"
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', marginBottom: '15px', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+            />
+          </div>
+
+          <div className="setting-item">
+            <label htmlFor="senderPassword">Sender App Password</label>
+            <input
+              type="password"
+              id="senderPassword"
+              value={settings.senderPassword || ''}
+              onChange={(e) => updateSetting('senderPassword', e.target.value)}
+              placeholder="16-character app password"
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+            />
+          </div>
+        </div>
+
+        <div className="settings-card">
+          <h2 className="settings-section-title">Emergency Contacts (SOS)</h2>
+          <p className="settings-description" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '15px' }}>
+            Add the people who should <strong>receive</strong> the SOS alert.
+          </p>
+
+          <div className="setting-item email-input-group">
+            <label htmlFor="newEmail">Add Email Address</label>
+            <div className="email-input-row">
+              <input
+                type="email"
+                id="newEmail"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="doctor@example.com"
+                onKeyDown={(e) => e.key === 'Enter' && addEmail()}
+              />
+              <button className="email-add-btn" onClick={addEmail}>
+                <FiPlus /> Add
+              </button>
+            </div>
+          </div>
+
+          {(settings.emergencyEmails && settings.emergencyEmails.length > 0) && (
+            <div className="email-list">
+              {settings.emergencyEmails.map(email => (
+                <div key={email} className="email-chip">
+                  <span>{email}</span>
+                  <button onClick={() => removeEmail(email)} className="email-remove-btn" title="Remove Email"><FiX /></button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <button className="settings-save-btn" onClick={saveSettings}>

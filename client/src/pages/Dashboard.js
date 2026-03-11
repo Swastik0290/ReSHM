@@ -4,13 +4,9 @@ import { useLocation } from 'react-router-dom';
 import { useSettings } from '../hooks/useSettings';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
-import EnvironmentalOverview from '../components/dashboard/EnvironmentalOverview';
-import AlertBox from '../components/dashboard/AlertBox';
-import AirQualityBox from '../components/dashboard/AirQualityBox';
-import OxygenBox from '../components/dashboard/OxygenBox';
-import TimeBox from '../components/dashboard/TimeBox';
-import QuickReadings from '../components/dashboard/QuickReadings';
-import CurrentLocation from '../components/dashboard/CurrentLocation';
+import { FiAlertOctagon, FiBell, FiCheck, FiX } from 'react-icons/fi';
+import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
+import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -23,18 +19,88 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [roomId, setRoomId] = useState(navState?.roomId || null);
   const [rooms, setRooms] = useState([]);
+  const [sosActive, setSosActive] = useState(false);
+  const [sosConfirmed, setSosConfirmed] = useState(false);
+
+  const sendSosAlert = async () => {
+    setSosConfirmed(true);
+    setSosActive(false);
+
+    try {
+      let emails = [];
+      let senderEmail = '';
+      let senderPassword = '';
+
+      const stored = localStorage.getItem('reshm_settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        emails = parsed.emergencyEmails || [];
+        senderEmail = parsed.senderEmail || '';
+        senderPassword = parsed.senderPassword || '';
+      }
+
+      if (emails.length === 0) {
+        console.warn("No emergency emails configured in Settings. Only UI alert will show.");
+        // Still returning since no recipients
+        return;
+      }
+
+      await axios.post('/api/sos', {
+        emails,
+        senderEmail,
+        senderPassword,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to trigger SOS email:', err);
+    }
+  };
 
   useEffect(() => {
     fetchRoomsAndData();
   }, [user]);
 
-
+  // Handle setting up Server-Sent Events (SSE) when a roomId is selected
   useEffect(() => {
     if (!roomId) return;
-    const ms = (settings.refreshInterval || 30) * 1000;
-    const interval = setInterval(() => fetchDashboardData(roomId), ms);
-    return () => clearInterval(interval);
-  }, [roomId, settings.refreshInterval]);
+
+    const eventSource = new EventSource(`/api/sensor/stream/${roomId}`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'connected') {
+          console.log(`Connected to real-time stream for room ${roomId}`);
+          return;
+        }
+
+        // It's a new reading. Update dashboardData if we have it
+        setDashboardData((prev) => {
+          if (!prev) return prev;
+
+          return {
+            latest: data, // Replace latest with incoming reading
+            trends: [data, ...(prev.trends || [])].slice(0, 100), // Push to start of trends, keep max 100
+          };
+        });
+
+      } catch (err) {
+        console.error('Failed to parse SSE event data', err);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE Error:', error);
+      eventSource.close();
+    };
+
+    // Cleanup when roomId changes or component unmounts
+    return () => {
+      eventSource.close();
+    };
+  }, [roomId]);
+
+  // Removed old polling interval (setInterval) from here
 
   const fetchRoomsAndData = async () => {
     try {
@@ -62,7 +128,6 @@ const Dashboard = () => {
 
   const fetchDashboardData = async (id = roomId) => {
     if (!id) return;
-
     try {
       const response = await axios.get(`/api/sensor/dashboard/${id}`);
       setDashboardData(response.data);
@@ -74,7 +139,12 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-loading">Loading dashboard...</div>;
+    return (
+      <div className="dashboard-loading">
+        <div className="dashboard-loading-spinner" />
+        Loading dashboard...
+      </div>
+    );
   }
 
   if (error && !dashboardData) {
@@ -90,11 +160,8 @@ const Dashboard = () => {
   }
 
   const latest = dashboardData?.latest;
-  const trends = dashboardData?.trends || [];
   const hasReadings = !!latest;
-
   const safeNum = (v, def = 0) => (v != null ? Number(v) : def);
-  const safeLoc = (loc) => (loc && typeof loc === 'object' ? loc : { latitude: 0, longitude: 0 });
 
   const onRoomChange = (e) => {
     const id = e.target.value;
@@ -107,43 +174,113 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {user?.role === 'admin' && rooms.length > 1 && (
-        <div className="dashboard-room-select">
-          <label htmlFor="room-select">Device / Room:</label>
-          <select id="room-select" value={roomId || ''} onChange={onRoomChange}>
-            {rooms.map((r) => (
-              <option key={r._id} value={r._id}>{r.name}</option>
-            ))}
-          </select>
+      {/* ── SOS Top Bar ───────────────────────────────────── */}
+      <div className="dashboard-sos-bar">
+        <div className="dashboard-sos-info">
+          <FiBell className="sos-label-icon" />
+          <span className="dashboard-sos-label">Emergency Response</span>
+        </div>
+        <button
+          className={`sos-btn ${sosConfirmed ? 'sos-btn-active' : ''}`}
+          onClick={() => {
+            if (!sosConfirmed) {
+              setSosActive(true);
+            } else {
+              setSosConfirmed(false);
+              setSosActive(false);
+            }
+          }}
+        >
+          <span className="sos-btn-ring" />
+          <FiAlertOctagon className="sos-btn-icon" />
+          {sosConfirmed ? 'CANCEL SOS' : 'SOS'}
+        </button>
+      </div>
+
+
+
+      {/* ── SOS Confirmation Modal ─────────────────────── */}
+      {sosActive && !sosConfirmed && (
+        <div className="sos-modal-overlay" onClick={() => setSosActive(false)}>
+          <div className="sos-modal" onClick={e => e.stopPropagation()}>
+            <div className="sos-modal-icon-wrap">
+              <FiAlertOctagon className="sos-modal-svg-icon" />
+            </div>
+            <h2 className="sos-modal-title">Send SOS Alert?</h2>
+            <p className="sos-modal-text">
+              This will immediately notify emergency contacts and authorities.
+              Are you sure you want to proceed?
+            </p>
+            <div className="sos-modal-actions">
+              <button className="sos-cancel-btn" onClick={() => setSosActive(false)}>
+                <FiX /> Cancel
+              </button>
+              <button
+                className="sos-confirm-btn"
+                onClick={sendSosAlert}
+              >
+                <FiAlertOctagon /> SEND SOS
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      <div className="bento-grid">
-        <EnvironmentalOverview
-          temperature={hasReadings ? latest.temperature : null}
-          humidity={hasReadings ? latest.humidity : null}
-          trends={trends}
-          roomId={roomId}
-        />
 
-        <AlertBox alerts={hasReadings && latest.alerts ? latest.alerts : []} />
+      {/* ── SOS Active Alert Banner ────────────────────── */}
+      {sosConfirmed && (
+        <div className="sos-active-banner">
+          <FiAlertOctagon className="sos-banner-icon" />
+          <strong>SOS ALERT ACTIVE</strong> — Emergency services have been notified.
+          <button className="sos-dismiss-btn" onClick={() => setSosConfirmed(false)}>
+            <FiCheck /> Dismiss
+          </button>
+        </div>
+      )}
 
-        <AirQualityBox
-          coSensor1={safeNum(latest?.coSensor1)}
-          coSensor2={safeNum(latest?.coSensor2)}
-          smokeDetected={latest?.smokeDetected ?? false}
-          co2={safeNum(latest?.co2)}
-        />
+      {/* ── Settings Bar (Room Select / Source) ────────────── */}
+      <div className="dashboard-settings-bar">
+        {user?.role === 'admin' && rooms.length > 1 ? (
+          <div className="dashboard-room-select">
+            <label htmlFor="room-select">Device / Room:</label>
+            <select id="room-select" value={roomId || ''} onChange={onRoomChange}>
+              {rooms.map((r) => (
+                <option key={r._id} value={r._id}>{r.name}</option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="dashboard-room-select-placeholder" />
+        )}
 
-        <OxygenBox oxygen={hasReadings ? latest.oxygen : null} />
+        <div className="dashboard-source-indicator">
+          Data connection: <span className="source-badge">{latest?.source || 'Unknown'}</span>
+        </div>
+      </div>
 
-        <TimeBox />
+      {/* ── Two-column monitoring layout ────────────────── */}
+      <div className="dashboard-columns">
+        {/* LEFT — Environmental Safety */}
+        <div className="dashboard-col dashboard-col-left">
+          <EnvironmentalSafety
+            coSensor1={hasReadings ? safeNum(latest.coSensor1) : null}
+            coSensor2={hasReadings ? safeNum(latest.coSensor2) : null}
+            co2={hasReadings ? safeNum(latest.co2) : null}
+            smokeDetected={latest?.smokeDetected ?? false}
+            fireDetected={latest?.fireDetected ?? false}
+            altitude={hasReadings && latest.altitude != null ? safeNum(latest.altitude) : null}
+            hasData={hasReadings}
+          />
+        </div>
 
-        <QuickReadings roomId={roomId} />
-
-        <CurrentLocation
-          latitude={safeLoc(latest?.location).latitude}
-          longitude={safeLoc(latest?.location).longitude}
-        />
+        {/* RIGHT — Health Monitoring */}
+        <div className="dashboard-col dashboard-col-right">
+          <HealthMonitoring
+            spo2={hasReadings ? latest.oxygen : null}
+            pulse={hasReadings ? latest.pulse : null}
+            hasData={hasReadings}
+            roomId={roomId}
+          />
+        </div>
       </div>
     </div>
   );

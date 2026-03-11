@@ -1,5 +1,5 @@
 {
-  "name": "svasa-metric-monitoring",
+  "name": "reshm",
   "version": "1.0.0",
   "description": "Room Sensor Monitoring Dashboard - MERN Stack Application",
   "main": "server/index.js",

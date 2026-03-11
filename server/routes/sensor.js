@@ -14,7 +14,45 @@ const INGEST_DEFAULTS = {
   coSensor2: 0,
   co2: 400,
   oxygen: 21,
-  smokeDetected: false
+  pulse: 72,
+  smokeDetected: false,
+  fireDetected: false,
+  altitude: null
+};
+
+// Global array to hold connected SSE clients
+let sseClients = [];
+
+// @route   GET /api/sensor/stream/:roomId
+// @desc    SSE endpoint for real-time sensor updates for a room
+// @access  Public (should be private in prod)
+router.get('/stream/:roomId', (req, res) => {
+  const { roomId } = req.params;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  // Add this client to the global clients array
+  const client = { id: Date.now(), roomId, res };
+  sseClients.push(client);
+
+  // Send an initial connected event
+  res.write(`data: ${JSON.stringify({ type: 'connected' })}\n\n`);
+
+  req.on('close', () => {
+    // Remove client when connection is closed
+    sseClients = sseClients.filter(c => c.id !== client.id);
+  });
+});
+
+// Helper function to broadcast new reading
+const broadcastReading = (roomId, reading) => {
+  sseClients.forEach(client => {
+    if (client.roomId === roomId.toString()) {
+      client.res.write(`data: ${JSON.stringify(reading)}\n\n`);
+    }
+  });
 };
 
 // @route   POST /api/sensor/ingest
@@ -32,7 +70,11 @@ router.post('/ingest', [
   body('coSensor2').optional().isFloat(),
   body('co2').optional().isFloat(),
   body('oxygen').optional().isFloat(),
-  body('smokeDetected').optional().isBoolean()
+  body('pulse').optional().isFloat(),
+  body('smokeDetected').optional().isBoolean(),
+  body('fireDetected').optional().isBoolean(),
+  body('altitude').optional().isFloat(),
+  body('source').optional().isIn(['Modem', 'LAN', 'Unknown', 'WIFI'])
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -61,13 +103,23 @@ router.post('/ingest', [
       coSensor2: req.body.coSensor2 != null ? parseFloat(req.body.coSensor2) : INGEST_DEFAULTS.coSensor2,
       co2: req.body.co2 != null ? parseFloat(req.body.co2) : INGEST_DEFAULTS.co2,
       oxygen: req.body.oxygen != null ? parseFloat(req.body.oxygen) : INGEST_DEFAULTS.oxygen,
+      pulse: req.body.pulse != null ? parseFloat(req.body.pulse) : INGEST_DEFAULTS.pulse,
       smokeDetected: req.body.smokeDetected === true,
+      fireDetected: req.body.fireDetected === true,
+      altitude: req.body.altitude != null ? parseFloat(req.body.altitude) : INGEST_DEFAULTS.altitude,
+      source: req.body.source || 'Unknown',
       timestamp: new Date()
     };
 
     const reading = new SensorReading(payload);
     reading.checkThresholds();
     await reading.save();
+
+    // Populate the roomId so we can access its name/location below if needed
+    await reading.populate('roomId', 'name location');
+
+    // Broadcast the new reading to SSE clients
+    broadcastReading(room._id, reading);
 
     res.status(201).json({
       message: 'Reading saved',
@@ -92,7 +144,11 @@ router.post('/reading', [
   body('coSensor2').isFloat().withMessage('CO Sensor 2 reading is required'),
   body('co2').isFloat().withMessage('CO₂ reading is required'),
   body('oxygen').isFloat().withMessage('Oxygen reading is required'),
-  body('smokeDetected').isBoolean().withMessage('Smoke detection status is required')
+  body('pulse').isFloat().withMessage('Pulse reading is required'),
+  body('smokeDetected').isBoolean().withMessage('Smoke detection status is required'),
+  body('fireDetected').isBoolean().withMessage('Fire detection status is required'),
+  body('altitude').optional().isFloat(),
+  body('source').optional().isIn(['Modem', 'LAN', 'Unknown', 'WIFI'])
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -109,7 +165,11 @@ router.post('/reading', [
       coSensor2,
       co2,
       oxygen,
-      smokeDetected
+      pulse,
+      smokeDetected,
+      fireDetected,
+      altitude,
+      source
     } = req.body;
 
     // Verify room exists
@@ -128,7 +188,11 @@ router.post('/reading', [
       coSensor2,
       co2,
       oxygen,
+      pulse,
       smokeDetected,
+      fireDetected,
+      altitude,
+      source: source || 'Unknown',
       timestamp: new Date()
     });
 
@@ -136,6 +200,12 @@ router.post('/reading', [
     reading.checkThresholds();
 
     await reading.save();
+
+    // Populate the roomId before broadcast
+    await reading.populate('roomId', 'name location');
+
+    // Broadcast the new reading to SSE clients
+    broadcastReading(roomId, reading);
 
     res.status(201).json({
       message: 'Sensor reading saved successfully',
@@ -283,7 +353,7 @@ router.get('/alerts/:roomId', authenticate, checkRoomAccess, async (req, res) =>
     })
       .sort({ timestamp: -1 })
       .limit(limit)
-      .select('timestamp alerts temperature humidity coSensor1 coSensor2 co2 oxygen smokeDetected');
+      .select('timestamp alerts temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected');
 
     res.json(readings);
   } catch (error) {
@@ -311,7 +381,7 @@ router.get('/dashboard/:roomId', authenticate, checkRoomAccess, async (req, res)
       timestamp: { $gte: oneDayAgo }
     })
       .sort({ timestamp: 1 })
-      .select('timestamp temperature humidity coSensor1 coSensor2 co2 oxygen')
+      .select('timestamp temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected altitude')
       .limit(100);
 
     res.json({

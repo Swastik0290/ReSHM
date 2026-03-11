@@ -1,220 +1,475 @@
 /* ═══════════════════════════════════════════════════════════
-   Dashboard  –  Mobile-first, prevents all horizontal overflow
-   Breakpoints: 320 → 375 → 475 → 600 → 1100
+   Dashboard — Two-column environmental safety + health layout
+   Mobile-first: single column < 768px, two columns ≥ 768px
 ═══════════════════════════════════════════════════════════ */
+
 .dashboard {
   max-width: 100%;
   width: 100%;
   overflow-x: hidden;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* ── Room selector ───────────────────────────────────────── */
-.dashboard-room-select {
+/* ── SOS Bar ─────────────────────────────────────────────── */
+.dashboard-sos-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d1b1b 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 10px 16px;
+  gap: 12px;
+}
+
+.dashboard-sos-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-  width: 100%;
 }
 
-.dashboard-room-select label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
+.sos-label-icon {
+  font-size: 16px;
+  color: rgba(255, 255, 255, .6);
   flex-shrink: 0;
 }
 
-.dashboard-room-select select {
+.dashboard-sos-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.02em;
+}
+
+/* ── SOS Button ─────────────────────────────────────────── */
+.sos-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.sos-btn-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sos-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 24px rgba(220, 38, 38, 0.65);
+}
+
+.sos-btn:active {
+  transform: scale(0.97);
+}
+
+/* Idle pulsing ring on the SOS button */
+.sos-btn-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 30px;
+  border: 2px solid rgba(239, 68, 68, 0.6);
+  animation: sos-ring-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sos-ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  70% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Active state — SOS was confirmed */
+.sos-btn.sos-btn-active {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.45);
+}
+
+.sos-btn.sos-btn-active .sos-btn-ring {
+  border-color: rgba(22, 163, 74, 0.6);
+}
+
+/* ── SOS Modal Overlay ──────────────────────────────────── */
+.sos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: sos-fade-in 0.2s ease;
+}
+
+@keyframes sos-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.sos-modal {
+  background: var(--bg-card);
+  border-radius: 18px;
+  padding: 32px 28px 24px;
+  max-width: 400px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  animation: sos-modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes sos-modal-in {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.sos-modal-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, .12);
+  border: 2px solid rgba(239, 68, 68, .25);
+}
+
+.sos-modal-svg-icon {
+  font-size: 36px;
+  color: #ef4444;
+}
+
+.sos-modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.sos-modal-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.sos-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.sos-cancel-btn {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sos-cancel-btn:hover {
+  background: var(--border-color);
+}
+
+.sos-confirm-btn {
+  flex: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: transform 0.12s, box-shadow 0.15s;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.sos-confirm-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.55);
+}
+
+/* ── SOS Active Banner ──────────────────────────────────── */
+.sos-active-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: sos-banner-flash 1.5s ease-in-out infinite;
+}
+
+@keyframes sos-banner-flash {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.sos-banner-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  animation: sos-dot-beat 0.8s ease-in-out infinite;
+}
+
+@keyframes sos-dot-beat {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.4);
+  }
+}
+
+.sos-dismiss-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.sos-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
+
+/* ── Settings Bar & Room selector ───────────────────────────────────────── */
+.dashboard-settings-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.dashboard-room-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.dashboard-room-select-placeholder {
+  flex: 1;
+}
+
+.dashboard-room-select label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.dashboard-room-select select {
   min-width: 0;
-  /* critical: allows flex child to shrink below content */
   max-width: 260px;
-  /* cap on desktop */
-  padding: 7px 10px;
+  padding: 8px 32px 8px 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 13px;
-  background: var(--bg-card);
+  font-weight: 600;
+  background: var(--bg-main);
   color: var(--text-primary);
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
+  transition: all 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+.dashboard-room-select select:hover {
+  border-color: var(--accent);
 }
 
 .dashboard-room-select select:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
 }
 
-/* ── Bento grid ──────────────────────────────────────────── */
-.bento-grid {
-  display: grid;
+.dashboard-source-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
   gap: 8px;
-  /* Always 1-column below 600px — strict single column layout */
+}
+
+.source-badge {
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--border-color);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  font-size: 12px;
+}
+
+/* ── Two-column grid ─────────────────────────────────────── */
+.dashboard-columns {
+  display: grid;
+  /* Mobile: single column */
   grid-template-columns: 1fr;
+  gap: 12px;
   width: 100%;
-  overflow: hidden;
-  /* block any card overflow bleeding out */
+  align-items: start;
 }
 
-.bento-grid>* {
-  background: var(--bg-card);
-  border-radius: 10px;
-  padding: 12px 13px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
-  transition: box-shadow 0.2s;
-  /* CRITICAL: prevent any inner content from breaking out of the card */
+/* Tablet and above: two equal columns */
+@media (min-width: 768px) {
+  .dashboard-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+}
+
+/* Large desktop: slight left-column weight (safety gets more real-estate) */
+@media (min-width: 1200px) {
+  .dashboard-columns {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+  }
+}
+
+.dashboard-col {
   min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
-.bento-grid>*:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .09);
+/* Ensure panels inside stretch to fill column height */
+.dashboard-col>* {
+  flex: 1;
 }
-
-/* Named card overrides */
-.bento-grid>*:nth-child(2) {
-  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
-  color: white;
-}
-
-.bento-grid>*:nth-child(2) .card-title {
-  color: white;
-}
-
-.bento-grid>*:nth-child(7) {
-  padding: 0;
-}
-
-/* map card */
 
 /* ── State messages ──────────────────────────────────────── */
 .dashboard-loading,
 .dashboard-error,
 .dashboard-empty {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 180px;
+  gap: 12px;
+  min-height: 240px;
   font-size: 14px;
   color: var(--text-secondary);
   text-align: center;
-  padding: 16px;
+  padding: 24px;
   width: 100%;
+}
+
+.dashboard-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: dash-spin 0.8s linear infinite;
+}
+
+@keyframes dash-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .dashboard-error {
   color: var(--error-text);
-}
-
-/* ════════════════════════════════════════════════════════════
-   BREAKPOINTS  — mobile-first single column up to 600px
-════════════════════════════════════════════════════════════ */
-
-/* 320px – smallest Android / iPhone SE */
-@media (max-width: 374px) {
-  .bento-grid {
-    gap: 6px;
-  }
-
-  .bento-grid>* {
-    padding: 10px 11px;
-    border-radius: 9px;
-  }
-
-  .dashboard-room-select label {
-    font-size: 11px;
-  }
-
-  .dashboard-room-select select {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-}
-
-/* 375px – standard iPhone */
-@media (min-width: 375px) and (max-width: 474px) {
-  .bento-grid {
-    gap: 8px;
-  }
-
-  .bento-grid>* {
-    padding: 12px 13px;
-  }
-}
-
-/* 475px – large mobile */
-@media (min-width: 475px) and (max-width: 599px) {
-  .bento-grid {
-    gap: 9px;
-  }
-
-  .bento-grid>* {
-    padding: 13px 14px;
-    border-radius: 11px;
-  }
-}
-
-/* 600px – tablet: 2-column */
-@media (min-width: 600px) {
-  .bento-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "card1 card1"
-      "card2 card2"
-      "card3 card4"
-      "card5 card5"
-      "card6 card6"
-      "card7 card7";
-    gap: 10px;
-  }
-
-  .bento-grid>*:nth-child(1) {
-    grid-area: card1;
-  }
-
-  .bento-grid>*:nth-child(2) {
-    grid-area: card2;
-  }
-
-  .bento-grid>*:nth-child(3) {
-    grid-area: card3;
-  }
-
-  .bento-grid>*:nth-child(4) {
-    grid-area: card4;
-  }
-
-  .bento-grid>*:nth-child(5) {
-    grid-area: card5;
-  }
-
-  .bento-grid>*:nth-child(6) {
-    grid-area: card6;
-  }
-
-  .bento-grid>*:nth-child(7) {
-    grid-area: card7;
-  }
-}
-
-/* 1100px – desktop: 3-column */
-@media (min-width: 1100px) {
-  .bento-grid {
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-areas:
-      "card1 card1 card2"
-      "card3 card4 card5"
-      "card6 card6 card7";
-    gap: 12px;
-  }
-
-  .bento-grid>* {
-    padding: 14px 16px;
-  }
 }

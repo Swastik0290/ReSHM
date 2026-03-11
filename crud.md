@@ -1,4 +1,4 @@
-# Svasa Metric — API CRUD Reference
+# ReSHM — API CRUD Reference
 
 > Base URL for all requests: `http://<your-server-ip>:5000`
 > Replace `<your-server-ip>` with `localhost` for local testing, or your LAN / public IP for hardware devices.
@@ -80,7 +80,9 @@ Each reading posted by the hardware creates a **SensorReading** document.
 | `coSensor1` | Number | — | `0` | CO reading from sensor 1 in ppm |
 | `coSensor2` | Number | — | `0` | CO reading from sensor 2 in ppm |
 | `oxygen` | Number | — | `21` | Oxygen level in % (`0` to `100`) |
+| `pulse` | Number | — | `72` | Heart rate in BPM (`0` to `300`) |
 | `smokeDetected` | Boolean | — | `false` | `true` when smoke is detected |
+| `fireDetected` | Boolean | — | `false` | `true` when fire is detected |
 
 > **Threshold Alerts** are generated automatically on every ingest:
 >
@@ -89,9 +91,11 @@ Each reading posted by the hardware creates a **SensorReading** document.
 > | CO (each sensor) | ≥ 30 ppm | ≥ 50 ppm |
 > | CO₂ | ≥ 800 ppm | ≥ 1000 ppm |
 > | Oxygen | ≤ 20.5 % | ≤ 19.5 % |
+> | Pulse | ≥ 100 or ≤ 50 BPM | ≥ 120 or ≤ 40 BPM |
 > | Temperature | ≥ 30 °C | ≥ 35 °C |
 > | Humidity | ≥ 70 % | ≥ 80 % |
 > | Smoke | — | Any detection |
+> | Fire | — | Any detection |
 
 ---
 
@@ -224,7 +228,9 @@ Content-Type: application/json
   "coSensor1":     12,
   "coSensor2":     10,
   "oxygen":        20.9,
-  "smokeDetected": false
+  "pulse":         75,
+  "smokeDetected": false,
+  "fireDetected":  false
 }
 ```
 
@@ -335,7 +341,7 @@ Returns the **latest reading** plus up to **100 readings from the last 24 hours*
 
 ## Postman Quick-start Checklist
 
-1. **Import** — create a new collection in Postman named `Svasa Metric`.
+1. **Import** — create a new collection in Postman named `ReSHM`.
 2. **Environment** — create an environment with variable `base_url = http://localhost:5000`.
 3. **Login** — `POST {{base_url}}/api/auth/login` → copy the `token` from the response.
 4. **Set Bearer** — in the collection's *Authorization* tab set type `Bearer Token` and value `{{token}}`. All requests in the collection inherit this.

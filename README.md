@@ -1,4 +1,4 @@
-# Svasa Metric - Room Sensor Monitoring Dashboard
+# ReSHM - Real-time Sensor Health Monitor
 
 A comprehensive Room Sensor Monitoring Dashboard built with the MERN stack (MongoDB, Express.js, React.js, Node.js). This system collects real-time sensor data via LAN or 4G connectivity and stores it in MongoDB with timestamps for every entry.
 
@@ -284,6 +284,27 @@ svasa-metric/
 - `GET /api/users` - Get all users (admin only)
 - `PUT /api/users/:id` - Update user (admin only)
 - `DELETE /api/users/:id` - Delete user (admin only)
+
+## SOS Email Configuration
+
+To enable the SOS email functionality, follow these steps:
+
+1. **Option A: Quick Setup via Dashboard Settings (Recommended)**
+   - Go to your dashboard's **Settings** page.
+   - Under **Sender Email Configuration**, add the email address you want to use to *send* the alert.
+   - If using Gmail, you must enter a 16-character **App Password** created from your Google Account (Security > 2-Step Verification > App passwords) as your normal password will not work.
+
+2. **Option B: Backend Setup via `.env`**
+   - Alternatively, you can configure the sender credentials globally in the `server/.env` file:
+     ```env
+     EMAIL_USER=your_email@gmail.com
+     EMAIL_PASS=your_app_password
+     ```
+   - (Note: Dashboard Settings take priority. If left blank in Settings, the system will use the `.env` credentials).
+
+3. **Add Emergency Emails**: On the **Settings** page, under *Emergency Contacts*, add the email addresses of the people who should *receive* the alert.
+
+4. **Change the Email Message**: To modify the exact message sent to users, edit the `mailOptions` object in `server/routes/sos.js`. You can change the `subject` and `text` fields to fit your exact message requirements.
 
 ## Safety Thresholds
 

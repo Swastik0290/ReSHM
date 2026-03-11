@@ -1,0 +1,363 @@
+/* ═══════════════════════════════════════════════════════════
+   HealthMonitoring — arc gauge, static SpO2 value, no sparkline
+═══════════════════════════════════════════════════════════ */
+
+/* ── Panel ──────────────────────────────────────────────── */
+.health-panel {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.health-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.health-panel-header-icon {
+    font-size: 20px;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.health-panel-header-text {
+    flex: 1;
+}
+
+.health-panel-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -.02em;
+    margin: 0;
+}
+
+.health-panel-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 2px 0 0;
+}
+
+/* ── LIVE / WAITING pill ────────────────────────────────── */
+.health-data-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.health-pill-live {
+    background: rgba(16, 185, 129, .12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, .28);
+}
+
+.health-pill-wait {
+    background: rgba(156, 163, 175, .12);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, .22);
+}
+
+.health-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.health-pill-live .health-pill-dot {
+    background: #10b981;
+    animation: env-live-blink 1.5s ease-in-out infinite;
+}
+
+.health-pill-wait .health-pill-dot {
+    background: #9ca3af;
+    animation: health-wait-blink 2s ease-in-out infinite;
+}
+
+@keyframes health-wait-blink {
+
+    0%,
+    100% {
+        opacity: .4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ── Waiting state ──────────────────────────────────────── */
+.health-waiting {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 24px 16px;
+}
+
+.health-waiting-ring-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.health-waiting-ring {
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    border: 2px solid rgba(99, 102, 241, .35);
+    animation: health-ring-grow 2s ease-out infinite;
+}
+
+@keyframes health-ring-grow {
+    0% {
+        transform: scale(.8);
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.health-waiting-heart {
+    font-size: 44px;
+    color: #6366f1;
+}
+
+.health-waiting-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.health-waiting-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Metric card ──────────────────────────────────────────── */
+.health-metric-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+}
+
+/* Card header row */
+.health-metric-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.health-metric-icon {
+    font-size: 18px;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.health-metric-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+/* Status chip */
+.health-metric-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.health-chip-safe {
+    background: #ede9fe;
+    color: #4c1d95;
+}
+
+.health-chip-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.health-chip-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.health-chip-none {
+    background: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.health-chip-pulse {
+    position: absolute;
+    inset: -2px;
+    border-radius: 20px;
+    border: 2px solid #ef4444;
+    animation: env-chip-ring 1.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* ── Arc gauge ──────────────────────────────────────────── */
+.health-spo2-gauge-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 4px 0;
+}
+
+.spo2-gauge-svg {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+    display: block;
+    overflow: visible;
+}
+
+/* ── Pulse Display ──────────────────────────────────────── */
+.health-cards-container {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+.health-pulse-value-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 10px 0;
+}
+
+.pulse-value-display {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text-primary);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.text-safe {
+    color: #10b981;
+}
+
+.text-warning {
+    color: #f59e0b;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.text-none {
+    color: var(--text-secondary);
+}
+
+.pulse-unit {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+
+/* ── Reference bands ────────────────────────────────────── */
+.health-metric-bands {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.health-band {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 4px;
+    border-radius: 7px;
+    white-space: nowrap;
+}
+
+.health-band-safe {
+    background: rgba(16, 185, 129, .12);
+    color: #065f46;
+}
+
+.health-band-warn {
+    background: rgba(245, 158, 11, .12);
+    color: #92400e;
+}
+
+.health-band-danger {
+    background: rgba(239, 68, 68, .12);
+    color: #991b1b;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .health-cards-container {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .health-panel {
+        padding: 14px 14px 10px;
+        gap: 10px;
+    }
+
+    .pulse-value-display {
+        font-size: 42px;
+    }
+
+    .health-band {
+        font-size: 9px;
+    }
+}
