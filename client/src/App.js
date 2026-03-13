@@ -14,8 +14,12 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
 
-// Configure axios with API base URL
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125';
+// Configure axios with API base URL. Force relative path in production for Vercel proxy.
+const isProduction = process.env.NODE_ENV === 'production';
+const API_BASE_URL = isProduction 
+  ? '' 
+  : (process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125');
+  
 axios.defaults.baseURL = API_BASE_URL;
 
 // Add axios interceptor for debugging

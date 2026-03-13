@@ -3,10 +3,11 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-// Get API base URL and ensure it's set
-const API_BASE_URL = typeof process.env.REACT_APP_API_BASE_URL === 'string'
-  ? process.env.REACT_APP_API_BASE_URL
-  : 'http://103.86.177.125';
+// Get API base URL and ensure it's set. Force relative path in production for Vercel proxy.
+const isProduction = process.env.NODE_ENV === 'production';
+const API_BASE_URL = isProduction 
+  ? '' 
+  : (process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125');
   
 if (!axios.defaults.baseURL && API_BASE_URL !== '') {
   axios.defaults.baseURL = API_BASE_URL;
