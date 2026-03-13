@@ -7,7 +7,6 @@ const SETTINGS_KEY = 'reshm_settings';
 const defaultSettings = {
   timezone: 'Asia/Kolkata',
   refreshInterval: 30,
-  refreshInterval: 30,
   alertsEnabled: true,
   darkMode: false,
   senderEmail: '',

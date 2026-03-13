@@ -41,12 +41,14 @@ const TabularView = () => {
     } else if (rooms.length === 0) {
       fetchRooms();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, selectedRoomId]);
 
   useEffect(() => {
     if (roomId) {
       fetchReadings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, filters.startDate, filters.endDate, pagination.skip, pagination.limit]);
 
   const checkAllRoomsForAlerts = async (roomList) => {
@@ -108,6 +110,7 @@ const TabularView = () => {
     };
 
     return () => eventSource.close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, filters.startDate, filters.endDate, pagination]);
 
   const fetchRooms = async () => {

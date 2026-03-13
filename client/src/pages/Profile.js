@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { FiCheck, FiEdit2, FiTrash2, FiUser } from 'react-icons/fi';
+import { FiCheck, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import './Profile.css';
 
 const Profile = () => {

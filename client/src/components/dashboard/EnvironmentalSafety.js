@@ -40,13 +40,6 @@ const getAltitudeStatus = (v) => {
 
 const clampPct = (v, max) => Math.min(100, Math.max(0, (v / max) * 100));
 
-const LEVEL_COLORS = {
-  safe: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  unknown: '#9ca3af',
-};
-
 const LEVEL_ICONS = {
   safe: <FiCheckCircle />,
   warning: <FiAlertTriangle />,

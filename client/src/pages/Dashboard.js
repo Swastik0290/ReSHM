@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
-import { useSettings } from '../hooks/useSettings';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
 import { FiAlertOctagon, FiBell, FiCheck, FiX } from 'react-icons/fi';
@@ -12,7 +11,6 @@ import './Dashboard.css';
 const Dashboard = () => {
   const { user } = useAuth();
   const { state: navState } = useLocation();
-  const settings = useSettings();
   const { selectedRoomId, setSelectedRoomId } = useRoom();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
