@@ -58,12 +58,12 @@ const connectDB = async () => {
       const adminParams = {
         username: 'admin',
         email: 'admin@reshm.local',
-        password: 'admin', 
+        password: 'admin123', 
         role: 'admin',
         verified: true
       };
       await User.create(adminParams);
-      console.log('Default admin user created successfully (username: admin, password: admin)');
+      console.log('Default admin user created successfully (username: admin, password: admin123)');
     } else {
       // Ensure the 'admin' user specifically exists and its password is correct, checking by username
       const specificAdmin = await User.findOne({ username: 'admin' });
@@ -71,11 +71,11 @@ const connectDB = async () => {
         await User.create({
           username: 'admin',
           email: 'admin@reshm.local',
-          password: 'admin', 
+          password: 'admin123', 
           role: 'admin',
           verified: true
         });
-        console.log('Default admin user created successfully (username: admin, password: admin)');
+        console.log('Default admin user created successfully (username: admin, password: admin123)');
       }
     }
   } catch (error) {
