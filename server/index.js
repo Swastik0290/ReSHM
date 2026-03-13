@@ -37,10 +37,39 @@ app.get('/api/health', (req, res) => {
 });
 
 // MongoDB Connection
+const User = require('./models/User'); // Required for default admin creation
+
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Auto-create default admin user for VPS
+    const adminExists = await User.findOne({ role: 'admin' });
+    if (!adminExists) {
+      const adminParams = {
+        username: 'admin',
+        email: 'admin@reshm.local',
+        password: 'admin', 
+        role: 'admin',
+        verified: true
+      };
+      await User.create(adminParams);
+      console.log('Default admin user created successfully (username: admin, password: admin)');
+    } else {
+      // Ensure the 'admin' user specifically exists and its password is correct, checking by username
+      const specificAdmin = await User.findOne({ username: 'admin' });
+      if (!specificAdmin) {
+        await User.create({
+          username: 'admin',
+          email: 'admin@reshm.local',
+          password: 'admin', 
+          role: 'admin',
+          verified: true
+        });
+        console.log('Default admin user created successfully (username: admin, password: admin)');
+      }
+    }
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
     process.exit(1);

@@ -373,16 +373,16 @@ router.get('/dashboard/:roomId', authenticate, checkRoomAccess, async (req, res)
       .sort({ timestamp: -1 })
       .populate('roomId', 'name location');
 
-    const oneDayAgo = new Date();
-    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const recentReadings = await SensorReading.find({
       roomId,
-      timestamp: { $gte: oneDayAgo }
+      timestamp: { $gte: sevenDaysAgo }
     })
       .sort({ timestamp: 1 })
       .select('timestamp temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected altitude')
-      .limit(100);
+      .limit(1000);
 
     res.json({
       latest: latestReading,

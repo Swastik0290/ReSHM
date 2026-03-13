@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +13,24 @@ import Devices from './pages/Devices';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
+
+// Configure axios with API base URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125';
+axios.defaults.baseURL = API_BASE_URL;
+
+// Add axios interceptor for debugging
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    console.error(`[AXIOS ERROR] URL: ${error.config?.url || 'unknown'}`, error.message);
+    if (error.code === 'ERR_NETWORK') {
+      console.error(`[NETWORK ERROR] Cannot reach ${API_BASE_URL}. Please ensure the backend is running and accessible.`);
+    }
+    return Promise.reject(error);
+  }
+);
+
+console.log(`[APP INIT] Using API Base URL: ${API_BASE_URL}`);
 
 const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 

@@ -3,15 +3,19 @@ import { useAuth } from '../context/AuthContext';
 import { useRoom } from '../context/RoomContext';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import { FiDownload, FiRefreshCw } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiDownload, FiRefreshCw, FiAlertOctagon } from 'react-icons/fi';
 import './TabularView.css';
 
 const TabularView = () => {
   const { user } = useAuth();
-  const { selectedRoomId } = useRoom();
+  const { selectedRoomId, setSelectedRoomId } = useRoom();
+  const navigate = useNavigate();
   const [readings, setReadings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState([]);
   const [roomId, setRoomId] = useState(null);
+  const [alertRooms, setAlertRooms] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, limit: 50, skip: 0 });
   const getTodayRange = () => {
     const today = new Date();
@@ -34,7 +38,7 @@ const TabularView = () => {
       if (selectedRoomId !== roomId) {
         setRoomId(selectedRoomId);
       }
-    } else {
+    } else if (rooms.length === 0) {
       fetchRooms();
     }
   }, [user, selectedRoomId]);
@@ -44,6 +48,32 @@ const TabularView = () => {
       fetchReadings();
     }
   }, [roomId, filters.startDate, filters.endDate, pagination.skip, pagination.limit]);
+
+  const checkAllRoomsForAlerts = async (roomList) => {
+    try {
+      const promises = roomList.map(r => 
+        axios.get(`/api/sensor/latest/${r._id}`)
+             .then(res => ({ id: r._id, name: r.name, hasAlert: res.data?.alerts?.length > 0 }))
+             .catch(() => ({ id: r._id, name: r.name, hasAlert: false }))
+      );
+      const results = await Promise.all(promises);
+      const alerted = results.filter(res => res.hasAlert).map(res => ({ id: res.id, name: res.name }));
+      setAlertRooms(alerted);
+    } catch (err) {
+      console.error('Error checking alerts for all rooms', err);
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+    if (rooms.length > 0) {
+      checkAllRoomsForAlerts(rooms);
+      interval = setInterval(() => {
+        checkAllRoomsForAlerts(rooms);
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [rooms]);
 
   // Handle setting up Server-Sent Events (SSE) when a roomId is selected
   useEffect(() => {
@@ -83,15 +113,31 @@ const TabularView = () => {
   const fetchRooms = async () => {
     try {
       const roomsResponse = await axios.get('/api/rooms');
-      if (roomsResponse.data.length > 0) {
+      const roomList = Array.isArray(roomsResponse.data) ? roomsResponse.data : [];
+      setRooms(roomList);
+      if (roomList.length > 0) {
         const room = user.role === 'admin'
-          ? roomsResponse.data[0]
-          : roomsResponse.data.find(r => r._id === user.assignedRoom) || roomsResponse.data[0];
+          ? (roomList.find(r => r._id === selectedRoomId) || roomList[0])
+          : (roomList.find(r => r._id === user.assignedRoom) || roomList[0]);
         setRoomId(room?._id);
+        if (!selectedRoomId) setSelectedRoomId(room?._id);
       }
     } catch (error) {
       console.error('Error fetching rooms:', error);
     }
+  };
+
+  const onRoomChange = (e) => {
+    const id = e.target.value;
+    if (id) {
+      setRoomId(id);
+      setSelectedRoomId(id);
+    }
+  };
+
+  const onAlertClick = (id) => {
+    setSelectedRoomId(id);
+    navigate('/dashboard');
   };
 
   const fetchReadings = async () => {
@@ -106,10 +152,11 @@ const TabularView = () => {
       if (filters.endDate) params.endDate = filters.endDate;
 
       const response = await axios.get(`/api/sensor/readings/${roomId}`, { params });
-      setReadings(response.data.readings);
-      setPagination(prev => ({ ...prev, total: response.data.pagination.total }));
+      setReadings(response.data.readings || []);
+      setPagination(prev => ({ ...prev, total: response.data.pagination?.total || 0 }));
     } catch (error) {
       console.error('Error fetching readings:', error);
+      setReadings([]);
     } finally {
       setLoading(false);
     }
@@ -210,6 +257,47 @@ const TabularView = () => {
 
   return (
     <div className="tabular-view">
+      <div className="dashboard-settings-bar" style={{ marginBottom: '16px' }}>
+        {user?.role === 'admin' && rooms.length > 1 ? (
+          <div className="dashboard-room-select">
+            <label htmlFor="room-select">Device / Room:</label>
+            <select id="room-select" value={roomId || ''} onChange={onRoomChange}>
+              {rooms.map((r) => (
+                <option key={r._id} value={r._id}>{r.name}</option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="dashboard-room-select-placeholder" />
+        )}
+
+        <div className={`dashboard-alert-container ${alertRooms.length === 0 ? 'no-alerts' : 'has-alerts'}`}>
+          {alertRooms.length > 0 ? (
+            <>
+              <FiAlertOctagon className="alert-indicator-icon" />
+              <div className="alert-room-list">
+                 {alertRooms.map((a) => (
+                   <span 
+                     key={a.id} 
+                     className="alert-room-chip" 
+                     onClick={() => onAlertClick(a.id)}
+                     title="Click to view room"
+                   >
+                     {a.name}
+                   </span>
+                 ))}
+              </div>
+            </>
+          ) : (
+            <span className="no-alert-text">All Systems Clear — No Active Alerts</span>
+          )}
+        </div>
+
+        <div className="dashboard-source-indicator">
+          Data connection: <span className="source-badge">{readings[0]?.source || 'Unknown'}</span>
+        </div>
+      </div>
+
       <h1 className="page-title">View All Readings</h1>
 
       <div className="filters-section">

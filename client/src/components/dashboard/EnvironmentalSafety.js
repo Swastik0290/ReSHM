@@ -140,12 +140,12 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
   const co2s = getCoStatus(noData ? null : coSensor2);
   const co2v = getCo2Status(noData ? null : co2);
 
+  const altv = getAltitudeStatus(altitude);
+  const altPct = (noData || altitude == null) ? 0 : clampPct(altitude, ALT_MAX);
+
   const co1Pct = noData ? 0 : clampPct(coSensor1, CO_MAX);
   const co2sPct = noData ? 0 : clampPct(coSensor2, CO_MAX);
   const co2Pct = noData ? 0 : clampPct(co2, CO2_MAX);
-
-  const altv = getAltitudeStatus(noData ? null : altitude);
-  const altPct = (noData || altitude == null) ? 0 : clampPct(altitude, ALT_MAX);
 
   return (
     <div className="env-safety-panel">

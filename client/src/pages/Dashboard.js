@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [rooms, setRooms] = useState([]);
   const [sosActive, setSosActive] = useState(false);
   const [sosConfirmed, setSosConfirmed] = useState(false);
+  const [alertRooms, setAlertRooms] = useState([]);
 
   const sendSosAlert = async () => {
     setSosConfirmed(true);
@@ -146,6 +147,32 @@ const Dashboard = () => {
     }
   };
 
+  const checkAllRoomsForAlerts = async (roomList) => {
+    try {
+      const promises = roomList.map(r => 
+        axios.get(`/api/sensor/latest/${r._id}`)
+             .then(res => ({ id: r._id, name: r.name, hasAlert: res.data?.alerts?.length > 0 }))
+             .catch(() => ({ id: r._id, name: r.name, hasAlert: false }))
+      );
+      const results = await Promise.all(promises);
+      const alerted = results.filter(res => res.hasAlert).map(res => ({ id: res.id, name: res.name }));
+      setAlertRooms(alerted);
+    } catch (err) {
+      console.error('Error checking alerts for all rooms', err);
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+    if (rooms.length > 0) {
+      checkAllRoomsForAlerts(rooms);
+      interval = setInterval(() => {
+        checkAllRoomsForAlerts(rooms);
+      }, 3000); // Poll every 3 seconds for minimum latency
+    }
+    return () => clearInterval(interval);
+  }, [rooms]);
+
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -159,14 +186,7 @@ const Dashboard = () => {
     return <div className="dashboard-error">{error}</div>;
   }
 
-  if (rooms.length === 0) {
-    return (
-      <div className="dashboard-empty">
-        <p>No devices yet. Add a device from <strong>Add Device</strong> to start viewing data.</p>
-      </div>
-    );
-  }
-
+  // Handle case where we have rooms but latest reading might be null
   const latest = dashboardData?.latest;
   const hasReadings = !!latest;
   const safeNum = (v, def = 0) => (v != null ? Number(v) : def);
@@ -259,6 +279,28 @@ const Dashboard = () => {
         ) : (
           <div className="dashboard-room-select-placeholder" />
         )}
+
+        <div className={`dashboard-alert-container ${alertRooms.length === 0 ? 'no-alerts' : 'has-alerts'}`}>
+          {alertRooms.length > 0 ? (
+            <>
+              <FiAlertOctagon className="alert-indicator-icon" />
+              <div className="alert-room-list">
+                 {alertRooms.map((a) => (
+                   <span 
+                     key={a.id} 
+                     className="alert-room-chip" 
+                     onClick={() => onRoomChange({ target: { value: a.id } })}
+                     title="Click to view room"
+                   >
+                     {a.name}
+                   </span>
+                 ))}
+              </div>
+            </>
+          ) : (
+            <span className="no-alert-text">All Systems Clear — No Active Alerts</span>
+          )}
+        </div>
 
         <div className="dashboard-source-indicator">
           Data connection: <span className="source-badge">{latest?.source || 'Unknown'}</span>

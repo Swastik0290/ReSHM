@@ -13,11 +13,11 @@ const User = require('../models/User');
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/svasa-metric');
     console.log('MongoDB connected');
 
-    const newPassword = 'admin123456';
+    const newPassword = 'admin123';
     const hash = await bcrypt.hash(newPassword, 10);
 
     const result = await User.findOneAndUpdate(
-        { $or: [{ username: 'admin' }, { email: 'admin@svasa.com' }] },
+        { $or: [{ username: 'admin' }, { email: 'admin@reshm.com' }] },
         { password: hash, role: 'admin' },
         { new: true }
     );
@@ -27,7 +27,7 @@ const User = require('../models/User');
         console.log('   Username :', result.username);
         console.log('   Email    :', result.email);
         console.log('   Role     :', result.role);
-        console.log('   Password : admin123456');
+        console.log('   Password : admin123');
     } else {
         console.log('❌ No admin user found. Run create-admin.js first.');
     }

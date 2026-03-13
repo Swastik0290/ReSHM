@@ -3,9 +3,15 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Get API base URL and ensure it's set
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125';
+if (!axios.defaults.baseURL) {
+  axios.defaults.baseURL = API_BASE_URL;
+}
+
 const getErrorMessage = (error, fallback) => {
   if (error.code === 'ERR_NETWORK' || !error.response) {
-    return 'Cannot connect to server. Ensure the backend is running on port 5000 and MongoDB is started.';
+    return `Cannot connect to server at ${API_BASE_URL}. Ensure the backend is running and accessible. Check console for details.`;
   }
   const data = error.response?.data;
   if (data?.message) return data.message;

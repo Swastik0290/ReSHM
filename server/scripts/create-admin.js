@@ -10,9 +10,9 @@ dotenv.config();
 const User = require('../models/User');
 
 const ADMIN = {
-    username: 'admin',
-    email: 'admin@svasa.com',
-    password: 'admin123456',
+    username: 'Admin User',
+    email: 'admin@swas.com',
+    password: '123456',
     role: 'admin',
 };
 
