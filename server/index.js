@@ -22,6 +22,14 @@ const allowedOrigins = process.env.CLIENT_ORIGIN
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
+// Global error handler for malformed JSON payloads from IoT sensors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('Bad JSON payload rejected from:', req.ip);
+    return res.status(400).json({ status: 400, message: 'Malformed JSON payload' });
+  }
+  next(err);
+});
 app.use(express.urlencoded({ extended: true }));
 
 // Routes

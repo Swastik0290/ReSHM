@@ -4,8 +4,11 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 // Get API base URL and ensure it's set
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125';
-if (!axios.defaults.baseURL) {
+const API_BASE_URL = typeof process.env.REACT_APP_API_BASE_URL === 'string'
+  ? process.env.REACT_APP_API_BASE_URL
+  : 'http://103.86.177.125';
+  
+if (!axios.defaults.baseURL && API_BASE_URL !== '') {
   axios.defaults.baseURL = API_BASE_URL;
 }
 
