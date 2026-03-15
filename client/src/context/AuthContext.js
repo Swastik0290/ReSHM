@@ -3,10 +3,11 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-// In production: empty baseURL lets Vercel proxy /api/* to VPS:5000 (avoids Mixed Content)
+// In production: force empty string so Vercel proxy handles /api/* -> VPS:5000 (avoids Mixed Content)
+// Ignore REACT_APP_API_BASE_URL in prod because Vercel dashboard might override it
 // In dev: point directly to VPS or local backend
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? (process.env.REACT_APP_API_BASE_URL || '')
+  ? ''
   : (process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125:5000');
 
 if (!axios.defaults.baseURL) {

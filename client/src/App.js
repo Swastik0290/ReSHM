@@ -14,10 +14,11 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
 
-// In production: baseURL='' → Vercel proxy handles /api/* → VPS:5000 (avoids Mixed Content)
-// In dev: baseURL = env var or fallback to VPS IP:5000
+// In production: force empty string to make requests relative so Vercel proxy handles /api/* -> VPS:5000 (avoids Mixed Content)
+// Ignore REACT_APP_API_BASE_URL in prod because Vercel dashboard might override it and break the proxy
+// In dev: use env var or fallback to VPS IP:5000
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? (process.env.REACT_APP_API_BASE_URL || '')
+  ? ''
   : (process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125:5000');
 
 axios.defaults.baseURL = API_BASE_URL;
