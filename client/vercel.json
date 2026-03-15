@@ -1,11 +1,5 @@
 {
   "env": {
     "CI": "false"
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "http://103.86.177.125/api/$1"
-    }
-  ]
+  }
 }
