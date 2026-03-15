@@ -12,7 +12,7 @@ const SensorReading = require('../models/SensorReading');
 const seedData = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/svasa-metric');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log('Connected to MongoDB');
 
     // Remove seed users so they can be recreated with correct password hashing

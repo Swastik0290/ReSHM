@@ -10,7 +10,7 @@ dotenv.config();
 const User = require('../models/User');
 
 (async () => {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/svasa-metric');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log('MongoDB connected');
 
     const newPassword = 'admin123';

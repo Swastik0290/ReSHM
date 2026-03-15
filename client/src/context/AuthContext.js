@@ -3,8 +3,11 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-// Get API base URL from environment variable.
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125';
+// In production: empty baseURL lets Vercel proxy /api/* to VPS:5000 (avoids Mixed Content)
+// In dev: point directly to VPS or local backend
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? (process.env.REACT_APP_API_BASE_URL || '')
+  : (process.env.REACT_APP_API_BASE_URL || 'http://103.86.177.125:5000');
 
 if (!axios.defaults.baseURL) {
   axios.defaults.baseURL = API_BASE_URL;

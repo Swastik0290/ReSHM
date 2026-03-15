@@ -17,7 +17,7 @@ const ADMIN = {
 };
 
 (async () => {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/svasa-metric');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log('MongoDB connected');
 
     const existing = await User.findOne({ $or: [{ email: ADMIN.email }, { username: ADMIN.username }] });
