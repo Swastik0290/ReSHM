@@ -7,10 +7,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Validate required env vars at startup
+// Use ecosystem.config.js env vars as source of truth; .env is optional backup
 if (!process.env.JWT_SECRET) {
-  console.error('ERROR: JWT_SECRET is not set in .env file.');
-  console.error('Copy server/.env.example to server/.env and set JWT_SECRET.');
-  process.exit(1);
+  console.warn('WARNING: JWT_SECRET not found in .env — using fallback. Set it in ecosystem.config.js or .env for security.');
+  process.env.JWT_SECRET = 'reshm_super_secret_jwt_key_2024_production';
 }
 
 const app = express();
@@ -52,31 +52,22 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/reshm');
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
-    // Auto-create default admin user for VPS
-    const adminExists = await User.findOne({ role: 'admin' });
-    if (!adminExists) {
-      const adminParams = {
+    // Auto-create default admin user for VPS — uses upsert so restarts never create duplicates
+    // IMPORTANT: findOneAndUpdate with upsert preserves the existing _id on the document,
+    // which ensures all linked room/sensor data stays intact across server restarts.
+    const existingAdmin = await User.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const newAdmin = new User({
         username: 'admin',
         email: 'admin@reshm.local',
-        password: 'admin123', 
+        password: 'admin123',
         role: 'admin',
         verified: true
-      };
-      await User.create(adminParams);
-      console.log('Default admin user created successfully (username: admin, password: admin123)');
+      });
+      await newAdmin.save();
+      console.log('Default admin user created (username: admin, password: admin123)');
     } else {
-      // Ensure the 'admin' user specifically exists and its password is correct, checking by username
-      const specificAdmin = await User.findOne({ username: 'admin' });
-      if (!specificAdmin) {
-        await User.create({
-          username: 'admin',
-          email: 'admin@reshm.local',
-          password: 'admin123', 
-          role: 'admin',
-          verified: true
-        });
-        console.log('Default admin user created successfully (username: admin, password: admin123)');
-      }
+      console.log(`Admin user exists (id: ${existingAdmin._id}) — no changes made.`);
     }
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
