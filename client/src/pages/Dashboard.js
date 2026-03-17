@@ -9,8 +9,8 @@ import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
 
 // Threshold helpers — mirrors EnvironmentalSafety.js so alerts reflect live values
-const CO_WARN = 30; const CO_CRIT = 50;
-const CO2_WARN = 800; const CO2_CRIT = 1000;
+const CO_WARN = 30;
+const CO2_WARN = 800;
 const hasRoomAlert = (reading) => {
   if (!reading) return false;
   const co1 = Number(reading.coSensor1 ?? 0);
