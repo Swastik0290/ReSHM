@@ -3,10 +3,29 @@ import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
-import { FiAlertOctagon, FiBell, FiCheck, FiX } from 'react-icons/fi';
+import { FiAlertOctagon, FiBell, FiCheck, FiX, FiMail } from 'react-icons/fi';
 import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
 import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
+
+// Threshold helpers — mirrors EnvironmentalSafety.js so alerts reflect live values
+const CO_WARN = 30; const CO_CRIT = 50;
+const CO2_WARN = 800; const CO2_CRIT = 1000;
+const hasRoomAlert = (reading) => {
+  if (!reading) return false;
+  const co1 = Number(reading.coSensor1 ?? 0);
+  const co2s = Number(reading.coSensor2 ?? 0);
+  const co2 = Number(reading.co2 ?? 0);
+  return (
+    co1 >= CO_WARN || co2s >= CO_WARN ||
+    co2 >= CO2_WARN ||
+    reading.smokeDetected === true ||
+    reading.fireDetected === true ||
+    Number(reading.oxygen ?? 99) < 90 ||
+    Number(reading.pulse ?? 75) >= 120 ||
+    Number(reading.pulse ?? 75) <= 40
+  );
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -20,10 +39,13 @@ const Dashboard = () => {
   const [sosActive, setSosActive] = useState(false);
   const [sosConfirmed, setSosConfirmed] = useState(false);
   const [alertRooms, setAlertRooms] = useState([]);
+  // 'idle' | 'sending' | 'ok' | 'error' | 'no-config'
+  const [sosEmailStatus, setSosEmailStatus] = useState('idle');
 
   const sendSosAlert = async () => {
     setSosConfirmed(true);
     setSosActive(false);
+    setSosEmailStatus('sending');
 
     try {
       let emails = [];
@@ -38,9 +60,9 @@ const Dashboard = () => {
         senderPassword = parsed.senderPassword || '';
       }
 
-      if (emails.length === 0) {
-        console.warn("No emergency emails configured in Settings. Only UI alert will show.");
-        // Still returning since no recipients
+      if (emails.length === 0 || !senderEmail || !senderPassword) {
+        setSosEmailStatus('no-config');
+        setTimeout(() => setSosEmailStatus('idle'), 6000);
         return;
       }
 
@@ -50,8 +72,12 @@ const Dashboard = () => {
         senderPassword,
         timestamp: new Date().toISOString()
       });
+      setSosEmailStatus('ok');
+      setTimeout(() => setSosEmailStatus('idle'), 6000);
     } catch (err) {
       console.error('Failed to trigger SOS email:', err);
+      setSosEmailStatus('error');
+      setTimeout(() => setSosEmailStatus('idle'), 8000);
     }
   };
 
@@ -147,9 +173,9 @@ const Dashboard = () => {
 
   const checkAllRoomsForAlerts = async (roomList) => {
     try {
-      const promises = roomList.map(r => 
+      const promises = roomList.map(r =>
         axios.get(`/api/sensor/latest/${r._id}`)
-             .then(res => ({ id: r._id, name: r.name, hasAlert: res.data?.alerts?.length > 0 }))
+             .then(res => ({ id: r._id, name: r.name, hasAlert: hasRoomAlert(res.data) }))
              .catch(() => ({ id: r._id, name: r.name, hasAlert: false }))
       );
       const results = await Promise.all(promises);
@@ -260,6 +286,28 @@ const Dashboard = () => {
           <button className="sos-dismiss-btn" onClick={() => setSosConfirmed(false)}>
             <FiCheck /> Dismiss
           </button>
+        </div>
+      )}
+
+      {/* ── SOS Email Status Banner ─────────────────────── */}
+      {sosEmailStatus === 'sending' && (
+        <div className="sos-email-banner sos-email-sending">
+          <FiMail /> Sending alert email to emergency contacts…
+        </div>
+      )}
+      {sosEmailStatus === 'ok' && (
+        <div className="sos-email-banner sos-email-ok">
+          <FiCheck /> Alert email sent successfully to all emergency contacts.
+        </div>
+      )}
+      {sosEmailStatus === 'error' && (
+        <div className="sos-email-banner sos-email-error">
+          <FiX /> Email delivery failed — check your sender email &amp; app password in Settings.
+        </div>
+      )}
+      {sosEmailStatus === 'no-config' && (
+        <div className="sos-email-banner sos-email-error">
+          <FiX /> No email config found — add a sender email, app password &amp; emergency contacts in Settings.
         </div>
       )}
 

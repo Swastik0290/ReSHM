@@ -389,3 +389,27 @@
     display: none;
   }
 }
+
+/* ── Number Roll-In animation ────────────────────────────── */
+@keyframes number-roll-in {
+  0% {
+    opacity: 0;
+    transform: translateY(60%) scaleY(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-8%) scaleY(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.env-value-number {
+  display: inline-block;
+}
+
+.env-value-number.rolling {
+  animation: number-roll-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}

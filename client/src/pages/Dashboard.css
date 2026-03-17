@@ -276,6 +276,41 @@
   }
 }
 
+/* ── SOS Email Status Banner ────────────────────────────── */
+.sos-email-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: sos-fade-in 0.3s ease-out;
+  margin-bottom: 4px;
+}
+
+.sos-email-sending {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.sos-email-sending svg {
+  animation: dash-spin 2s linear infinite;
+}
+
+.sos-email-ok {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sos-email-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .sos-banner-icon {
   font-size: 18px;
   flex-shrink: 0;

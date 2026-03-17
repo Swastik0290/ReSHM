@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { FiHeart, FiActivity, FiCheckCircle, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
 import './HealthMonitoring.css';
 
@@ -24,6 +24,25 @@ const LEVEL_ICONS = {
     warning: <FiAlertTriangle />,
     danger: <FiXCircle />,
     none: <FiActivity />,
+};
+
+/* ──────────────────────────────────────────────────────────
+   Roll animation hook — adds .rolling class briefly when value changes
+────────────────────────────────────────────────────────── */
+const useRollAnimation = (value) => {
+    const [rolling, setRolling] = useState(false);
+    const prevRef = useRef(undefined);
+    useEffect(() => {
+        if (prevRef.current !== undefined && prevRef.current !== value) {
+            setRolling(false);
+            const raf = requestAnimationFrame(() => setRolling(true));
+            const timer = setTimeout(() => setRolling(false), 420);
+            return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+        }
+        prevRef.current = value;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
+    return rolling;
 };
 
 /* ──────────────────────────────────────────────────────────
@@ -115,6 +134,16 @@ const ArcGauge = ({ value, level, hasValue }) => {
 };
 
 
+/* ── PulseValue animated display ────────────────────────── */
+const PulseValue = ({ value }) => {
+    const rolling = useRollAnimation(value);
+    return (
+        <span className={`health-value-number${rolling ? ' rolling' : ''}`}>
+            {value != null ? value : '—'}
+        </span>
+    );
+};
+
 /* ──────────────────────────────────────────────────────────
    Main Component
 ────────────────────────────────────────────────────────── */
@@ -197,7 +226,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
 
                         <div className="health-pulse-value-wrap">
                             <div className={`pulse-value-display text-${pulseStatus.level}`}>
-                                {hasPulseValue ? Math.round(pulse) : '—'}
+                                <PulseValue value={hasPulseValue ? Math.round(pulse) : null} />
                                 <span className="pulse-unit">BPM</span>
                             </div>
                         </div>

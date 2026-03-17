@@ -10,38 +10,36 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'No emergency emails provided' });
         }
 
-        const finalEmailUser = senderEmail || process.env.EMAIL_USER;
-        const finalEmailPass = senderPassword || process.env.EMAIL_PASS;
+        if (!senderEmail || !senderPassword) {
+            return res.status(400).json({ error: 'Sender email and app password are required' });
+        }
 
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // Configure appropriate service or generic SMTP here
+            service: 'gmail',
             auth: {
-                user: finalEmailUser,
-                pass: finalEmailPass
+                user: senderEmail,
+                pass: senderPassword
             }
         });
 
         const mailOptions = {
-            // ==========================================
-            // HOW TO CHANGE THE EMAIL MESSAGE
-            // Edit the `subject` and `text` fields below 
-            // to customize your SOS email exactly.
-            // ==========================================
-            from: finalEmailUser || '"ReSHM SOS" <noreply@reshm.network>',
+            from: `"ReSHM SOS" <${senderEmail}>`,
             to: emails.join(', '),
-            subject: 'EMERGENCY: SOS Alert Triggered',
-            text: `An SOS alert was triggered from the ReSHM dashboard at ${new Date(timestamp || Date.now()).toLocaleString()}.\n\nPlease check on the individual immediately.`
+            subject: '🚨 EMERGENCY: SOS Alert Triggered – ReSHM',
+            text: `An SOS alert was triggered from the ReSHM dashboard at ${new Date(timestamp || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.\n\nPlease check on the individual immediately.\n\n—\nReSHM Emergency Response System`
         };
 
-        if (finalEmailUser && finalEmailPass) {
+        try {
             await transporter.sendMail(mailOptions);
-            res.status(200).json({ message: 'SOS emails sent successfully' });
-        } else {
-            // Fallback for demonstration when no ENVs or Dashboard settings are configured
-            console.warn('No Sender Email or Password provided. Simulating email send.');
-            console.log('Would have sent to:', emails.join(', '));
-            console.log('Payload:', mailOptions.text);
-            res.status(200).json({ message: 'Simulated SOS emails sent (no sender configured)' });
+            return res.status(200).json({ message: 'SOS emails sent successfully' });
+        } catch (smtpErr) {
+            console.error('SMTP send error:', smtpErr.message);
+            return res.status(422).json({
+                error: 'SMTP delivery failed',
+                detail: smtpErr.message.includes('auth') || smtpErr.message.includes('535')
+                    ? 'Authentication failed — check sender email and app password in Settings'
+                    : smtpErr.message
+            });
         }
 
     } catch (error) {

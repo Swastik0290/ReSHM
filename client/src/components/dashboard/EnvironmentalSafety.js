@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   FiWind, FiCloud, FiAlertCircle, FiShield, FiCheckCircle,
   FiAlertTriangle, FiXCircle, FiActivity, FiNavigation
@@ -48,6 +48,36 @@ const LEVEL_ICONS = {
 };
 
 /* ──────────────────────────────────────────────────────────
+   Roll animation hook — adds .rolling class briefly when value changes
+────────────────────────────────────────────────────────── */
+const useRollAnimation = (value) => {
+  const [rolling, setRolling] = useState(false);
+  const prevRef = useRef(undefined);
+  useEffect(() => {
+    if (prevRef.current !== undefined && prevRef.current !== value) {
+      setRolling(false);
+      // force re-trigger by scheduling next frame
+      const raf = requestAnimationFrame(() => setRolling(true));
+      const timer = setTimeout(() => setRolling(false), 420);
+      return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+    }
+    prevRef.current = value;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+  return rolling;
+};
+
+/** Value span with roll animation */
+const AnimatedValue = ({ value, className, spanClass }) => {
+  const rolling = useRollAnimation(value);
+  return (
+    <div className={className}>
+      <span className={`${spanClass}${rolling ? ' rolling' : ''}`}>{value}</span>
+    </div>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────
    Sub-components
 ────────────────────────────────────────────────────────── */
 
@@ -80,7 +110,7 @@ const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value, barPc
       </div>
     </div>
 
-    <div className="env-card-value">{value}</div>
+    <AnimatedValue value={value} className="env-card-value" spanClass="env-value-number" />
 
     {!noData && barPct != null && (
       <BarIndicator pct={barPct} level={level} />
@@ -109,7 +139,7 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText })
         </div>
       </div>
 
-      <div className="env-card-value">{value}</div>
+      <AnimatedValue value={value} className="env-card-value" spanClass="env-value-number" />
 
       {!noData && (
         <div className="env-bar-track">
