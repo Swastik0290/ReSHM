@@ -12,8 +12,7 @@ import './EnvironmentalSafety.css';
 ────────────────────────────────────────────────────────── */
 const CO_WARN = 30; const CO_CRIT = 50; const CO_MAX = 100;
 const CO2_WARN = 800; const CO2_CRIT = 1000; const CO2_MAX = 2000;
-const TEMP_MAX = 50;
-const HUM_WARN = 60; const HUM_CRIT = 80; const HUM_MAX = 100;
+const HUM_WARN = 60; const HUM_CRIT = 80;
 
 /* ──────────────────────────────────────────────────────────
    Helpers
