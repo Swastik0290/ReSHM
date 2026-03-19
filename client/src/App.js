@@ -37,7 +37,7 @@ axios.interceptors.response.use(
 
 console.log(`[APP INIT] Using API Base URL: ${API_BASE_URL}`);
 
-const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '897096211868-f411h2mbcotkhjt3rcb8iue71085aqp5.apps.googleusercontent.com';
 
 
 function ThemeSync() {
