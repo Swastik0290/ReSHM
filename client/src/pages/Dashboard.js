@@ -308,6 +308,7 @@ const Dashboard = () => {
       }, 3000); // Poll every 3 seconds for minimum latency
     }
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rooms]);
 
   if (loading) {
