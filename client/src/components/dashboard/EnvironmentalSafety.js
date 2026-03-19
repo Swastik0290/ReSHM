@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   FiWind, FiCloud, FiAlertCircle, FiShield, FiCheckCircle,
-  FiAlertTriangle, FiXCircle, FiActivity, FiNavigation,
+  FiAlertTriangle, FiXCircle, FiActivity,
   FiThermometer, FiDroplet
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
