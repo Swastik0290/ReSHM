@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
 import { FiAlertOctagon } from 'react-icons/fi';
-import { sendEmailViaGmailAPI } from '../utils/gmail';
 import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
 import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
@@ -38,43 +37,7 @@ const Dashboard = () => {
   const [roomId, setRoomId] = useState(navState?.roomId || null);
   const [rooms, setRooms] = useState([]);
   const [alertRooms, setAlertRooms] = useState([]);
-  const lastEmailSentRef = useRef({}); // Track last email sent time per room (debounce/cooldown)
 
-  const sendAutomatedAlertEmail = async (roomName) => {
-    try {
-      let emails = [];
-      let googleAccessToken = '';
-
-      const stored = localStorage.getItem('reshm_settings');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (!parsed.alertsEnabled) return; // Honour user settings
-        emails = parsed.emergencyEmails || [];
-        googleAccessToken = parsed.googleAccessToken || '';
-      }
-
-      if (emails.length === 0 || !googleAccessToken) {
-        // Cannot send if configuration is missing
-        return;
-      }
-
-      // 5 minute cooldown per room
-      const now = Date.now();
-      const lastSent = lastEmailSentRef.current[roomName] || 0;
-      if (now - lastSent < 5 * 60 * 1000) {
-        return; // Skip if sent recently
-      }
-
-      // Mark as sent to prevent immediate duplicate triggers
-      lastEmailSentRef.current[roomName] = now;
-
-      const emailText = `🚨 AUTOMATED CRITICAL ALERT 🚨\n\nThis is an automated emergency alert from the ReSHM Dashboard for room: ${roomName}\nTime: ${new Date().toLocaleString()}\n\nImmediate attention is required!`;
-
-      await sendEmailViaGmailAPI(googleAccessToken, emails, "🚨 CRITICAL ALERT - ReSHM System", emailText);
-    } catch (err) {
-      console.error('Failed to trigger automated email alert:', err);
-    }
-  };
 
   useEffect(() => {
     if (rooms.length === 0) {
@@ -178,7 +141,6 @@ const Dashboard = () => {
       results.forEach(res => {
         if (res.hasAlert) {
           alerted.push({ id: res.id, name: res.name });
-          sendAutomatedAlertEmail(res.name); // Try to send email (cooldown applied inside)
         }
       });
       setAlertRooms(alerted);

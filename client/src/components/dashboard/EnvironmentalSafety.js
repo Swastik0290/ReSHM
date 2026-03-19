@@ -183,7 +183,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           <h2 className="env-panel-title">Room Stats</h2>
           <p className="env-panel-subtitle">Environmental safety metrics</p>
         </div>
-        <div className={`env-live-pill ${hasData ? 'health-pill-live' : 'health-pill-wait'}`}>
+        <div className={`env-live-pill ${hasData ? 'env-pill-live' : 'env-pill-wait'}`}>
           <span className="env-live-dot" />
           {hasData ? 'LIVE' : 'WAIT'}
         </div>

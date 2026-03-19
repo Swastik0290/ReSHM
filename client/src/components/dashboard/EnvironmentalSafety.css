@@ -42,6 +42,58 @@
   margin: 2px 0 0;
 }
 
+/* ── LIVE / WAITING pill ────────────────────────────────── */
+.env-live-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.env-pill-live {
+  background: rgba(16, 185, 129, .12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, .28);
+}
+
+.env-pill-wait {
+  background: rgba(156, 163, 175, .12);
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, .22);
+}
+
+.env-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.env-pill-live .env-live-dot {
+  background: #10b981;
+  animation: env-live-blink 1.5s ease-in-out infinite;
+}
+
+.env-pill-wait .env-live-dot {
+  background: #9ca3af;
+  animation: env-wait-blink 2s ease-in-out infinite;
+}
+
+@keyframes env-live-blink {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
+@keyframes env-wait-blink {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
 /* ── Card Grid ──────────────────────────────────────────── */
 .env-cards-grid {
   display: grid;
