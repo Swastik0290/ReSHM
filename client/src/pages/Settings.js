@@ -47,39 +47,31 @@ const Settings = () => {
 
     setVerifyStatus('testing');
     try {
-      const smtpHost = settings.senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
-                     : settings.senderEmail.includes('@outlook') || settings.senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
-                     : 'smtp.gmail.com';
+      const payload = {
+        emails: [settings.senderEmail], // send to themselves to verify
+        senderEmail: settings.senderEmail,
+        senderPassword: settings.senderPassword,
+        subject: "✅ ReSHM System - Email Verification Successful",
+        text: "Verification Successful\n\nYour ReSHM sender email configuration is working correctly."
+      };
 
-      const payload = JSON.stringify({
-        Host: smtpHost,
-        Username: settings.senderEmail,
-        Password: settings.senderPassword,
-        To: settings.senderEmail, // send to themselves to verify
-        From: settings.senderEmail,
-        Subject: "✅ ReSHM System - Email Verification Successful",
-        Body: "<h3>Verification Successful</h3><p>Your ReSHM sender email configuration is working correctly.</p>",
-        nocache: Math.floor(1e6 * Math.random() + 1),
-        Action: "Send"
-      });
-
-      const response = await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
+      const response = await fetch("/api/sos", {
         method: "POST",
-        headers: { "Content-type": "application/x-www-form-urlencoded" },
-        body: payload
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
       
-      const result = await response.text();
-      if (result === "OK") {
+      if (response.ok) {
         setVerifyStatus('success');
         setVerifyMessage('Verification email sent successfully! Please check your inbox.');
       } else {
+        const data = await response.json();
         setVerifyStatus('error');
-        setVerifyMessage('Failed: ' + result);
+        setVerifyMessage('Failed: ' + (data.detail || data.error || 'Unknown error'));
       }
     } catch (err) {
       setVerifyStatus('error');
-      setVerifyMessage('Failed to connect to verification server.');
+      setVerifyMessage('Failed to connect to backend server.');
     }
     setTimeout(() => {
       setVerifyStatus('idle');

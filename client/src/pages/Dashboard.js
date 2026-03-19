@@ -73,38 +73,15 @@ const Dashboard = () => {
       // Mark as sent to prevent immediate duplicate triggers
       lastEmailSentRef.current[roomName] = now;
 
-      const smtpHost = senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
-                     : senderEmail.includes('@outlook') || senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
-                     : 'smtp.gmail.com';
+      const emailText = `🚨 AUTOMATED CRITICAL ALERT 🚨\n\nThis is an automated emergency alert from the ReSHM Dashboard for room: ${roomName}\nTime: ${new Date().toLocaleString()}\n\nImmediate attention is required!`;
 
-      const emailBody = `
-        <h2>🚨 AUTOMATED CRITICAL ALERT 🚨</h2>
-        <p>This is an automated emergency alert from the ReSHM Dashboard for room: <strong>${roomName}</strong></p>
-        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-        <p>Immediate attention is required!</p>
-      `;
-
-      for (const toEmail of emails) {
-        const payload = JSON.stringify({
-          Host: smtpHost,
-          Username: senderEmail,
-          Password: senderPassword,
-          To: toEmail,
-          From: senderEmail,
-          Subject: "🚨 CRITICAL ALERT - ReSHM System",
-          Body: emailBody,
-          nocache: Math.floor(1e6 * Math.random() + 1),
-          Action: "Send"
-        });
-
-        await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
-          method: "POST",
-          headers: {
-            "Content-type": "application/x-www-form-urlencoded"
-          },
-          body: payload
-        });
-      }
+      await axios.post('/api/sos', {
+        emails,
+        senderEmail,
+        senderPassword,
+        subject: "🚨 CRITICAL ALERT - ReSHM System",
+        text: emailText
+      });
     } catch (err) {
       console.error('Failed to trigger automated email alert:', err);
     }
@@ -134,53 +111,14 @@ const Dashboard = () => {
         return;
       }
 
-      const smtpHost = senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
-                     : senderEmail.includes('@outlook') || senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
-                     : 'smtp.gmail.com';
+      await axios.post('/api/sos', {
+        emails,
+        senderEmail,
+        senderPassword
+      });
 
-      const emailBody = `
-        <h2>🚨 EMERGENCY SOS ALERT 🚨</h2>
-        <p>This is an automated emergency alert from the ReSHM Dashboard.</p>
-        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-        <p>Immediate attention is required!</p>
-      `;
-
-      let allSuccess = true;
-      for (const toEmail of emails) {
-        const payload = JSON.stringify({
-          Host: smtpHost,
-          Username: senderEmail,
-          Password: senderPassword,
-          To: toEmail,
-          From: senderEmail,
-          Subject: "🚨 EMERGENCY SOS ALERT - ReSHM System",
-          Body: emailBody,
-          nocache: Math.floor(1e6 * Math.random() + 1),
-          Action: "Send"
-        });
-
-        const response = await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
-          method: "POST",
-          headers: {
-            "Content-type": "application/x-www-form-urlencoded"
-          },
-          body: payload
-        });
-        
-        const result = await response.text();
-        if (result !== "OK") {
-          console.error("Email delivery failed to", toEmail, ". Reason:", result);
-          allSuccess = false;
-        }
-      }
-
-      if (allSuccess) {
-        setSosEmailStatus('ok');
-        setTimeout(() => setSosEmailStatus('idle'), 6000);
-      } else {
-        setSosEmailStatus('error');
-        setTimeout(() => setSosEmailStatus('idle'), 8000);
-      }
+      setSosEmailStatus('ok');
+      setTimeout(() => setSosEmailStatus('idle'), 6000);
     } catch (err) {
       console.error('Failed to trigger SOS email directly from frontend:', err);
       setSosEmailStatus('error');

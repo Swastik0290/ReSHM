@@ -88,13 +88,14 @@
 /* ── Cards grid ─────────────────────────────────────────── */
 .env-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   flex: 1;
 }
 
 /* ── Individual card ────────────────────────────────────── */
 .env-indicator-card {
+  grid-column: span 3;
   border-radius: 12px;
   padding: 13px 14px 11px;
   border: 1.5px solid transparent;
@@ -103,6 +104,11 @@
   gap: 9px;
   transition: box-shadow .2s;
   min-height: 128px;
+}
+
+/* Last 3 cards span 2 out of 6 columns (so they go in one row of 3) */
+.env-indicator-card:nth-last-child(-n+3) {
+  grid-column: span 2;
 }
 
 .env-level-safe {
@@ -379,6 +385,11 @@
 
   .env-cards-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .env-indicator-card, .env-indicator-card:nth-last-child(-n+3) {
+    grid-column: span 1;
   }
 
   .env-card-value {
