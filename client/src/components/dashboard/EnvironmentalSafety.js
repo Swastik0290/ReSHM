@@ -171,10 +171,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
   const co2v = getCo2Status(noData ? null : co2);
 
   const tempv = getTempStatus(temperature);
-  const tempPct = (noData || temperature == null) ? 0 : clampPct(temperature, TEMP_MAX);
-
   const humv = getHumStatus(humidity);
-  const humPct = (noData || humidity == null) ? 0 : clampPct(humidity, HUM_MAX);
 
   const co1Pct = noData ? 0 : clampPct(coSensor1, CO_MAX);
   const co2sPct = noData ? 0 : clampPct(coSensor2, CO_MAX);

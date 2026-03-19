@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
 import { FiAlertOctagon, FiBell, FiCheck, FiX, FiMail } from 'react-icons/fi';
+import { sendEmailViaGmailAPI } from '../utils/gmail';
 import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
 import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
@@ -46,19 +47,17 @@ const Dashboard = () => {
   const sendAutomatedAlertEmail = async (roomName) => {
     try {
       let emails = [];
-      let senderEmail = '';
-      let senderPassword = '';
+      let googleAccessToken = '';
 
       const stored = localStorage.getItem('reshm_settings');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (!parsed.alertsEnabled) return; // Honour user settings
         emails = parsed.emergencyEmails || [];
-        senderEmail = parsed.senderEmail || '';
-        senderPassword = parsed.senderPassword || '';
+        googleAccessToken = parsed.googleAccessToken || '';
       }
 
-      if (emails.length === 0 || !senderEmail || !senderPassword) {
+      if (emails.length === 0 || !googleAccessToken) {
         // Cannot send if configuration is missing
         return;
       }
@@ -75,13 +74,7 @@ const Dashboard = () => {
 
       const emailText = `🚨 AUTOMATED CRITICAL ALERT 🚨\n\nThis is an automated emergency alert from the ReSHM Dashboard for room: ${roomName}\nTime: ${new Date().toLocaleString()}\n\nImmediate attention is required!`;
 
-      await axios.post('/api/sos', {
-        emails,
-        senderEmail,
-        senderPassword,
-        subject: "🚨 CRITICAL ALERT - ReSHM System",
-        text: emailText
-      });
+      await sendEmailViaGmailAPI(googleAccessToken, emails, "🚨 CRITICAL ALERT - ReSHM System", emailText);
     } catch (err) {
       console.error('Failed to trigger automated email alert:', err);
     }
@@ -94,28 +87,24 @@ const Dashboard = () => {
 
     try {
       let emails = [];
-      let senderEmail = '';
-      let senderPassword = '';
+      let googleAccessToken = '';
 
       const stored = localStorage.getItem('reshm_settings');
       if (stored) {
         const parsed = JSON.parse(stored);
         emails = parsed.emergencyEmails || [];
-        senderEmail = parsed.senderEmail || '';
-        senderPassword = parsed.senderPassword || '';
+        googleAccessToken = parsed.googleAccessToken || '';
       }
 
-      if (emails.length === 0 || !senderEmail || !senderPassword) {
+      if (emails.length === 0 || !googleAccessToken) {
         setSosEmailStatus('no-config');
         setTimeout(() => setSosEmailStatus('idle'), 6000);
         return;
       }
 
-      await axios.post('/api/sos', {
-        emails,
-        senderEmail,
-        senderPassword
-      });
+      const emailText = `🚨 EMERGENCY: SOS Alert Triggered – ReSHM 🚨\n\nAn SOS alert was triggered from the ReSHM dashboard at ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.\n\nPlease check on the individual immediately.\n\n—\nReSHM Emergency Response System`;
+
+      await sendEmailViaGmailAPI(googleAccessToken, emails, "🚨 EMERGENCY: SOS Alert Triggered – ReSHM", emailText);
 
       setSosEmailStatus('ok');
       setTimeout(() => setSosEmailStatus('idle'), 6000);

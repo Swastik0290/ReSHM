@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiX, FiPlus, FiLogOut } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { useGoogleLogin } from '@react-oauth/google';
+import { sendEmailViaGmailAPI } from '../utils/gmail';
 import './Settings.css';
 
 const SETTINGS_KEY = 'reshm_settings';
@@ -12,7 +13,7 @@ const defaultSettings = {
   alertsEnabled: true,
   darkMode: false,
   senderEmail: '',
-  senderPassword: '',
+  googleAccessToken: '',
   emergencyEmails: []
 };
 
@@ -40,44 +41,13 @@ const Settings = () => {
   };
 
   const loginWithGoogle = useGoogleLogin({
-    flow: 'auth-code',
+    flow: 'implicit',
     scope: 'https://www.googleapis.com/auth/gmail.send email profile',
-    onSuccess: async (codeResponse) => {
-      try {
-        setVerifyStatus('testing');
-        setVerifyMessage('Authenticating with Google...');
-        // Exchange code for refresh token
-        const res = await fetch('/api/sos/google-auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: codeResponse.code })
-        });
-        
-        if (!res.ok) {
-            const errBody = await res.json();
-            throw new Error(errBody.error || 'Failed to exchange code');
-        }
-
-        const data = await res.json();
-        
-        if (data.refreshToken) {
-            // Get user's email from Google (optional, we could ask the user for it, or use standard userinfo endpoint)
-            // For simplicity, we assume they will provide sender email below, or we could fetch it here.
-            
-            updateSetting('senderPassword', data.refreshToken);
-            setVerifyStatus('success');
-            setVerifyMessage('Google OAuth Linked Successfully!');
-            setTimeout(() => setVerifyStatus('idle'), 4000);
-        } else {
-            setVerifyStatus('error');
-            setVerifyMessage('Google login succeeded, but no refresh token received. Ensure the app has the correct permissions.');
-            setTimeout(() => setVerifyStatus('idle'), 5000);
-        }
-      } catch (err) {
-        setVerifyStatus('error');
-        setVerifyMessage(err.message || 'Error executing Google Auth');
-        setTimeout(() => setVerifyStatus('idle'), 5000);
-      }
+    onSuccess: (tokenResponse) => {
+      setVerifyStatus('success');
+      setVerifyMessage('Google OAuth Linked Successfully!');
+      updateSetting('googleAccessToken', tokenResponse.access_token);
+      setTimeout(() => setVerifyStatus('idle'), 4000);
     },
     onError: (errorResponse) => {
       setVerifyStatus('error');
@@ -87,8 +57,8 @@ const Settings = () => {
   });
 
   const testEmailConnection = async () => {
-    if (!settings.senderEmail || !settings.senderPassword) {
-      setVerifyMessage('Please enter both email and password first.');
+    if (!settings.googleAccessToken) {
+      setVerifyMessage('Please link your Google account first.');
       setVerifyStatus('error');
       setTimeout(() => setVerifyStatus('idle'), 4000);
       return;
@@ -96,31 +66,22 @@ const Settings = () => {
 
     setVerifyStatus('testing');
     try {
-      const payload = {
-        emails: [settings.senderEmail], // send to themselves to verify
-        senderEmail: settings.senderEmail,
-        senderPassword: settings.senderPassword,
-        subject: "✅ ReSHM System - Email Verification Successful",
-        text: "Verification Successful\n\nYour ReSHM sender email configuration is working correctly."
-      };
-
-      const response = await fetch("/api/sos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      // For verification, send an email to the first emergency contact, or prompt for an email.
+      // We'll just send to the first logged string or a hardcoded target if needed.
+      const targetEmail = settings.emergencyEmails?.[0] || 'admin@reshm.local';
       
-      if (response.ok) {
-        setVerifyStatus('success');
-        setVerifyMessage('Verification email sent successfully! Please check your inbox.');
-      } else {
-        const data = await response.json();
-        setVerifyStatus('error');
-        setVerifyMessage('Failed: ' + (data.detail || data.error || 'Unknown error'));
-      }
+      await sendEmailViaGmailAPI(
+        settings.googleAccessToken,
+        [targetEmail],
+        "✅ ReSHM System - Email Verification Successful",
+        "Verification Successful\n\nYour ReSHM Google OAuth configuration is working correctly from the frontend."
+      );
+      
+      setVerifyStatus('success');
+      setVerifyMessage('Verification email sent successfully! Please check the inbox of the first emergency contact.');
     } catch (err) {
       setVerifyStatus('error');
-      setVerifyMessage('Failed to connect to backend server.');
+      setVerifyMessage('Failed: ' + err.message);
     }
     setTimeout(() => {
       setVerifyStatus('idle');
@@ -221,28 +182,28 @@ const Settings = () => {
             Configure the email account that will <strong>send</strong> the SOS alerts. We use Google OAuth to securely send emails on your behalf without requiring an App Password.
           </p>
 
-          <div className="setting-item">
-            <label htmlFor="senderEmail">Sender Email Address</label>
+            <div className="setting-item">
+            <label htmlFor="senderEmail">Sender Display Name/Identifier (Optional)</label>
             <input
-              type="email"
+              type="text"
               id="senderEmail"
               value={settings.senderEmail || ''}
               onChange={(e) => updateSetting('senderEmail', e.target.value)}
-              placeholder="your_email@gmail.com"
+              placeholder="E.g. Main Dashboard"
             />
           </div>
 
           <div className="setting-item">
             <label>Authentication</label>
             
-            {(settings.senderPassword && settings.senderPassword.length > 30) ? (
+            {(settings.googleAccessToken) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', border: '1px solid #10b981', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.05)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 'bold' }}>
                         <FcGoogle size={20} />
-                        Linked securely with Google OAuth
+                        Linked securely with Google OAuth (Frontend Mode)
                     </div>
                     <button 
-                        onClick={() => updateSetting('senderPassword', '')}
+                        onClick={() => updateSetting('googleAccessToken', '')}
                         style={{ alignSelf: 'flex-start', background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', padding: '4px 8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
                         <FiLogOut /> Unlink Google Account
@@ -267,7 +228,7 @@ const Settings = () => {
               className="settings-save-btn" 
               style={{marginTop: '10px', backgroundColor: '#10b981'}}
               onClick={testEmailConnection}
-              disabled={verifyStatus === 'testing' || !settings.senderPassword}
+              disabled={verifyStatus === 'testing' || !settings.googleAccessToken}
             >
               {verifyStatus === 'testing' ? 'Verifying...' : 'Verify Sender Config By Sending Test Email'}
             </button>
@@ -276,7 +237,7 @@ const Settings = () => {
                 {verifyMessage}
               </p>
             )}
-            {!settings.senderPassword && verifyStatus === 'idle' && (
+            {!settings.googleAccessToken && verifyStatus === 'idle' && (
               <p style={{marginTop: '10px', fontSize: '0.9rem', color: '#f59e0b'}}>
                 ⚠️ You must sign in with Google above to enable sending.
               </p>
