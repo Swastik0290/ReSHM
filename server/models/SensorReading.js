@@ -141,11 +141,12 @@ sensorReadingSchema.methods.checkThresholds = function () {
     alerts.push('WARNING: Low heart rate');
   }
 
-  if (this.temperature >= thresholds.temperature.critical) {
-    alerts.push('CRITICAL: High temperature!');
-  } else if (this.temperature >= thresholds.temperature.warning) {
-    alerts.push('WARNING: Elevated temperature');
-  }
+  // Temperature alerts disabled
+  // if (this.temperature >= thresholds.temperature.critical) {
+  //   alerts.push('CRITICAL: High temperature!');
+  // } else if (this.temperature >= thresholds.temperature.warning) {
+  //   alerts.push('WARNING: Elevated temperature');
+  // }
 
   if (this.humidity >= thresholds.humidity.critical) {
     alerts.push('CRITICAL: High humidity!');

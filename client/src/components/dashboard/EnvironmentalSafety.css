@@ -106,9 +106,9 @@
   min-height: 128px;
 }
 
-/* Last 3 cards span 2 out of 6 columns (so they go in one row of 3) */
-.env-indicator-card:nth-last-child(-n+3) {
-  grid-column: span 2;
+/* Fire Detection takes full width of the row */
+.env-card-full-width {
+  grid-column: span 6;
 }
 
 .env-level-safe {

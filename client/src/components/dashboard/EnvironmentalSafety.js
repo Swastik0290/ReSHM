@@ -126,13 +126,13 @@ const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value, barPc
 );
 
 /** Binary card (Generic) */
-const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText }) => {
+const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, className = "" }) => {
   const level = noData ? 'unknown' : detected ? 'danger' : 'safe';
   const label = noData ? 'NO DATA' : detected ? 'DETECTED' : 'CLEAR';
   const value = noData ? '—' : detected ? activeText : inactiveText;
 
   return (
-    <div className={`env-indicator-card env-level-${level}`}>
+    <div className={`env-indicator-card env-level-${level} ${className}`}>
       <div className="env-card-header">
         <div className="env-card-icon-wrap">{icon}</div>
         <div className="env-card-labels">
@@ -242,6 +242,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           noData={noData}
           activeText="Fire Detected"
           inactiveText="No Fire"
+          className="env-card-full-width"
         />
         <IndicatorCard
           icon={<FiThermometer />}
@@ -250,7 +251,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           level={tempv.level}
           statusLabel={tempv.label}
           value={tempv.display}
-          barPct={tempPct}
+          barPct={null}
           noData={temperature == null ? true : noData}
         />
         <IndicatorCard
@@ -260,7 +261,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           level={humv.level}
           statusLabel={humv.label}
           value={humv.display}
-          barPct={humPct}
+          barPct={null}
           noData={humidity == null ? true : noData}
         />
       </div>
