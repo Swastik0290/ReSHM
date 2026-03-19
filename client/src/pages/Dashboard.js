@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
-import { FiAlertOctagon, FiBell, FiCheck, FiX, FiMail } from 'react-icons/fi';
+import { FiAlertOctagon } from 'react-icons/fi';
 import { sendEmailViaGmailAPI } from '../utils/gmail';
 import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
 import HealthMonitoring from '../components/dashboard/HealthMonitoring';
