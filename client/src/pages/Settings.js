@@ -205,14 +205,14 @@ const Settings = () => {
           <div className="setting-item">
             <button 
               className="settings-save-btn" 
-              style={{marginTop: '10px', backgroundColor: 'var(--status-safe)'}}
+              style={{marginTop: '10px', backgroundColor: '#10b981'}}
               onClick={testEmailConnection}
               disabled={verifyStatus === 'testing'}
             >
               {verifyStatus === 'testing' ? 'Verifying...' : 'Verify Sender Config By Sending Test Email'}
             </button>
             {verifyMessage && (
-              <p style={{marginTop: '10px', fontSize: '0.9rem', color: verifyStatus === 'success' ? 'var(--status-safe)' : 'var(--status-danger)'}}>
+              <p style={{marginTop: '10px', fontSize: '0.9rem', color: verifyStatus === 'success' ? '#10b981' : '#ef4444'}}>
                 {verifyMessage}
               </p>
             )}

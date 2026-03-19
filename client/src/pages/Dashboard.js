@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -41,6 +41,74 @@ const Dashboard = () => {
   const [alertRooms, setAlertRooms] = useState([]);
   // 'idle' | 'sending' | 'ok' | 'error' | 'no-config'
   const [sosEmailStatus, setSosEmailStatus] = useState('idle');
+  const lastEmailSentRef = useRef({}); // Track last email sent time per room (debounce/cooldown)
+
+  const sendAutomatedAlertEmail = async (roomName) => {
+    try {
+      let emails = [];
+      let senderEmail = '';
+      let senderPassword = '';
+
+      const stored = localStorage.getItem('reshm_settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (!parsed.alertsEnabled) return; // Honour user settings
+        emails = parsed.emergencyEmails || [];
+        senderEmail = parsed.senderEmail || '';
+        senderPassword = parsed.senderPassword || '';
+      }
+
+      if (emails.length === 0 || !senderEmail || !senderPassword) {
+        // Cannot send if configuration is missing
+        return;
+      }
+
+      // 5 minute cooldown per room
+      const now = Date.now();
+      const lastSent = lastEmailSentRef.current[roomName] || 0;
+      if (now - lastSent < 5 * 60 * 1000) {
+        return; // Skip if sent recently
+      }
+
+      // Mark as sent to prevent immediate duplicate triggers
+      lastEmailSentRef.current[roomName] = now;
+
+      const smtpHost = senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
+                     : senderEmail.includes('@outlook') || senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
+                     : 'smtp.gmail.com';
+
+      const emailBody = `
+        <h2>🚨 AUTOMATED CRITICAL ALERT 🚨</h2>
+        <p>This is an automated emergency alert from the ReSHM Dashboard for room: <strong>${roomName}</strong></p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+        <p>Immediate attention is required!</p>
+      `;
+
+      for (const toEmail of emails) {
+        const payload = JSON.stringify({
+          Host: smtpHost,
+          Username: senderEmail,
+          Password: senderPassword,
+          To: toEmail,
+          From: senderEmail,
+          Subject: "🚨 CRITICAL ALERT - ReSHM System",
+          Body: emailBody,
+          nocache: Math.floor(1e6 * Math.random() + 1),
+          Action: "Send"
+        });
+
+        await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded"
+          },
+          body: payload
+        });
+      }
+    } catch (err) {
+      console.error('Failed to trigger automated email alert:', err);
+    }
+  };
 
   const sendSosAlert = async () => {
     setSosConfirmed(true);
@@ -218,7 +286,13 @@ const Dashboard = () => {
              .catch(() => ({ id: r._id, name: r.name, hasAlert: false }))
       );
       const results = await Promise.all(promises);
-      const alerted = results.filter(res => res.hasAlert).map(res => ({ id: res.id, name: res.name }));
+      const alerted = [];
+      results.forEach(res => {
+        if (res.hasAlert) {
+          alerted.push({ id: res.id, name: res.name });
+          sendAutomatedAlertEmail(res.name); // Try to send email (cooldown applied inside)
+        }
+      });
       setAlertRooms(alerted);
     } catch (err) {
       console.error('Error checking alerts for all rooms', err);
