@@ -82,16 +82,11 @@ function App() {
     </AuthProvider>
   );
 
-  return googleClientId ? (
-    <GoogleOAuthProvider clientId={googleClientId}>
+  return (
+    <GoogleOAuthProvider clientId={googleClientId || 'no-client-id-configured'}>
       <ThemeSync />
       {app}
     </GoogleOAuthProvider>
-  ) : (
-    <>
-      <ThemeSync />
-      {app}
-    </>
   );
 }
 
