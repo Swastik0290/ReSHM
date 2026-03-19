@@ -10,8 +10,8 @@ import './EnvironmentalSafety.css';
 /* ──────────────────────────────────────────────────────────
    Threshold config
 ────────────────────────────────────────────────────────── */
-const CO_WARN = 30; const CO_CRIT = 50; const CO_MAX = 100;
-const CO2_WARN = 800; const CO2_CRIT = 1000; const CO2_MAX = 2000;
+const CO_WARN = 30; const CO_CRIT = 50;
+const CO2_WARN = 800; const CO2_CRIT = 1000;
 const HUM_WARN = 60; const HUM_CRIT = 80;
 
 /* ──────────────────────────────────────────────────────────
@@ -21,30 +21,27 @@ const getCoStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
   if (v >= CO_CRIT) return { level: 'danger', label: 'DANGER', display: `${Number(v).toFixed(2)} ppm` };
   if (v >= CO_WARN) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(2)} ppm` };
-  return { level: 'safe', label: 'SAFE', display: `${Number(v).toFixed(2)} ppm` };
+  return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(2)} ppm` };
 };
 
 const getCo2Status = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
   if (v >= CO2_CRIT) return { level: 'danger', label: 'DANGER', display: `${Number(v).toFixed(0)} ppm` };
   if (v >= CO2_WARN) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(0)} ppm` };
-  return { level: 'safe', label: 'SAFE', display: `${Number(v).toFixed(0)} ppm` };
+  return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(0)} ppm` };
 };
 
 const getTempStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
-  // Return safe regardless of threshold
-  return { level: 'safe', label: 'OPTIMAL', display: `${Number(v).toFixed(1)}°C` };
+  return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(1)}°C` };
 };
 
 const getHumStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
   if (v >= HUM_CRIT || v <= 20) return { level: 'danger', label: 'CRITICAL', display: `${Number(v).toFixed(1)}%` };
   if (v >= HUM_WARN || v <= 30) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(1)}%` };
-  return { level: 'safe', label: 'OPTIMAL', display: `${Number(v).toFixed(1)}%` };
+  return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(1)}%` };
 };
-
-const clampPct = (v, max) => Math.min(100, Math.max(0, (v / max) * 100));
 
 const LEVEL_ICONS = {
   safe: <FiCheckCircle />,
@@ -54,7 +51,7 @@ const LEVEL_ICONS = {
 };
 
 /* ──────────────────────────────────────────────────────────
-   Roll animation hook — adds .rolling class briefly when value changes
+   Roll animation hook
 ────────────────────────────────────────────────────────── */
 const useRollAnimation = (value) => {
   const [rolling, setRolling] = useState(false);
@@ -62,7 +59,6 @@ const useRollAnimation = (value) => {
   useEffect(() => {
     if (prevRef.current !== undefined && prevRef.current !== value) {
       setRolling(false);
-      // force re-trigger by scheduling next frame
       const raf = requestAnimationFrame(() => setRolling(true));
       const timer = setTimeout(() => setRolling(false), 420);
       return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
@@ -73,7 +69,6 @@ const useRollAnimation = (value) => {
   return rolling;
 };
 
-/** Value span with roll animation */
 const AnimatedValue = ({ value, className, spanClass }) => {
   const rolling = useRollAnimation(value);
   return (
@@ -87,22 +82,44 @@ const AnimatedValue = ({ value, className, spanClass }) => {
    Sub-components
 ────────────────────────────────────────────────────────── */
 
-/** Horizontal bar indicator */
-const BarIndicator = ({ pct, level }) => (
-  <div className="env-bar-track">
-    <div
-      className={`env-bar-fill env-bar-${level}`}
-      style={{ width: `${pct}%` }}
-    />
-    {/* threshold markers */}
-    <span className="env-bar-mark env-bar-mark-warn" title="Warning threshold" />
-    <span className="env-bar-mark env-bar-mark-crit" title="Critical threshold" />
+/** Combined CO Monitoring Card */
+const CombinedCoCard = ({ co1, co2s }) => (
+  <div className="env-indicator-card env-card-full-width env-combined-co-card">
+    <div className="env-card-header">
+      <div className="env-card-icon-wrap"><FiWind /></div>
+      <div className="env-card-labels">
+        <div className="env-card-title">CO Monitoring</div>
+        <div className="env-card-subtitle">Dual Sensor Array</div>
+      </div>
+    </div>
+    <div className="env-combined-sensors">
+      <div className="env-combined-sensor">
+        <div className="env-sensor-label">
+          <span>Sensor 1</span>
+          <div className={`env-level-chip env-chip-${co1.level}`}>
+            {co1.level === 'danger' && <span className="env-chip-pulse" />}
+            {LEVEL_ICONS[co1.level]} {co1.label}
+          </div>
+        </div>
+        <AnimatedValue value={co1.display} className={`env-card-value text-${co1.level}`} spanClass="env-value-number" />
+      </div>
+      <div className="env-combined-sensor">
+        <div className="env-sensor-label">
+          <span>Sensor 2</span>
+          <div className={`env-level-chip env-chip-${co2s.level}`}>
+            {co2s.level === 'danger' && <span className="env-chip-pulse" />}
+            {LEVEL_ICONS[co2s.level]} {co2s.label}
+          </div>
+        </div>
+        <AnimatedValue value={co2s.display} className={`env-card-value text-${co2s.level}`} spanClass="env-value-number" />
+      </div>
+    </div>
   </div>
 );
 
 /** Generic indicator card */
-const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value, barPct, noData }) => (
-  <div className={`env-indicator-card env-level-${level}`}>
+const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value }) => (
+  <div className="env-indicator-card">
     <div className="env-card-header">
       <div className="env-card-icon-wrap">{icon}</div>
       <div className="env-card-labels">
@@ -115,23 +132,18 @@ const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value, barPc
         {statusLabel}
       </div>
     </div>
-
-    <AnimatedValue value={value} className="env-card-value" spanClass="env-value-number" />
-
-    {!noData && barPct != null && (
-      <BarIndicator pct={barPct} level={level} />
-    )}
+    <AnimatedValue value={value} className={`env-card-value text-${level}`} spanClass="env-value-number" />
   </div>
 );
 
 /** Binary card (Generic) */
 const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, className = "" }) => {
   const level = noData ? 'unknown' : detected ? 'danger' : 'safe';
-  const label = noData ? 'NO DATA' : detected ? 'DETECTED' : 'CLEAR';
+  const label = noData ? 'NO DATA' : detected ? 'DETECTED' : 'NORMAL';
   const value = noData ? '—' : detected ? activeText : inactiveText;
 
   return (
-    <div className={`env-indicator-card env-level-${level} ${className}`}>
+    <div className={`env-indicator-card ${className}`}>
       <div className="env-card-header">
         <div className="env-card-icon-wrap">{icon}</div>
         <div className="env-card-labels">
@@ -144,17 +156,7 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, c
           {label}
         </div>
       </div>
-
-      <AnimatedValue value={value} className="env-card-value" spanClass="env-value-number" />
-
-      {!noData && (
-        <div className="env-bar-track">
-          <div
-            className={`env-bar-fill env-bar-${level}`}
-            style={{ width: detected ? '100%' : '0%' }}
-          />
-        </div>
-      )}
+      <AnimatedValue value={value} className={`env-card-value text-${level}`} spanClass="env-value-number" />
     </div>
   );
 };
@@ -172,10 +174,6 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
   const tempv = getTempStatus(temperature);
   const humv = getHumStatus(humidity);
 
-  const co1Pct = noData ? 0 : clampPct(coSensor1, CO_MAX);
-  const co2sPct = noData ? 0 : clampPct(coSensor2, CO_MAX);
-  const co2Pct = noData ? 0 : clampPct(co2, CO2_MAX);
-
   return (
     <div className="env-safety-panel">
       {/* Header */}
@@ -183,36 +181,18 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
         <FiShield className="env-panel-header-icon" />
         <div className="env-panel-header-text">
           <h2 className="env-panel-title">Room Stats</h2>
-          <p className="env-panel-subtitle">Real-time localized metrics</p>
+          <p className="env-panel-subtitle">Environmental safety metrics</p>
         </div>
-        <div className="env-live-pill">
+        <div className={`env-live-pill ${hasData ? 'health-pill-live' : 'health-pill-wait'}`}>
           <span className="env-live-dot" />
-          LIVE
+          {hasData ? 'LIVE' : 'WAIT'}
         </div>
       </div>
 
       {/* Cards */}
       <div className="env-cards-grid">
-        <IndicatorCard
-          icon={<FiWind />}
-          title="Carbon Monoxide"
-          subtitle="CO Sensor 1"
-          level={co1.level}
-          statusLabel={co1.label}
-          value={co1.display}
-          barPct={co1Pct}
-          noData={noData}
-        />
-        <IndicatorCard
-          icon={<FiWind />}
-          title="Carbon Monoxide"
-          subtitle="CO Sensor 2"
-          level={co2s.level}
-          statusLabel={co2s.label}
-          value={co2s.display}
-          barPct={co2sPct}
-          noData={noData}
-        />
+        <CombinedCoCard co1={co1} co2s={co2s} />
+        
         <IndicatorCard
           icon={<FiCloud />}
           title="Carbon Dioxide"
@@ -220,8 +200,22 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           level={co2v.level}
           statusLabel={co2v.label}
           value={co2v.display}
-          barPct={co2Pct}
-          noData={noData}
+        />
+        <IndicatorCard
+          icon={<FiThermometer />}
+          title="Temperature"
+          subtitle="Ambient Room Temp"
+          level={tempv.level}
+          statusLabel={tempv.label}
+          value={tempv.display}
+        />
+        <IndicatorCard
+          icon={<FiDroplet />}
+          title="Humidity"
+          subtitle="Relative Humidity"
+          level={humv.level}
+          statusLabel={humv.label}
+          value={humv.display}
         />
         <BinaryCard
           icon={<FiAlertCircle />}
@@ -238,36 +232,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           noData={noData}
           activeText="Fire Detected"
           inactiveText="No Fire"
-          className="env-card-full-width"
         />
-        <IndicatorCard
-          icon={<FiThermometer />}
-          title="Temperature"
-          subtitle="Ambient Room Temp"
-          level={tempv.level}
-          statusLabel={tempv.label}
-          value={tempv.display}
-          barPct={null}
-          noData={temperature == null ? true : noData}
-        />
-        <IndicatorCard
-          icon={<FiDroplet />}
-          title="Humidity"
-          subtitle="Relative Humidity"
-          level={humv.level}
-          statusLabel={humv.label}
-          value={humv.display}
-          barPct={null}
-          noData={humidity == null ? true : noData}
-        />
-      </div>
-
-      {/* Legend */}
-      <div className="env-legend">
-        <span className="env-legend-item env-legend-safe">Safe</span>
-        <span className="env-legend-item env-legend-warning">Warning</span>
-        <span className="env-legend-item env-legend-danger">Danger</span>
-        <span className="env-legend-right">CO: warn 30 · crit 50 &nbsp;|&nbsp; CO₂: warn 800 · crit 1000 &nbsp;|&nbsp; Temp: warn 30°C · crit 35°C</span>
       </div>
     </div>
   );

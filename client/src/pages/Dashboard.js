@@ -37,11 +37,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [roomId, setRoomId] = useState(navState?.roomId || null);
   const [rooms, setRooms] = useState([]);
-  const [sosActive, setSosActive] = useState(false);
-  const [sosConfirmed, setSosConfirmed] = useState(false);
   const [alertRooms, setAlertRooms] = useState([]);
-  // 'idle' | 'sending' | 'ok' | 'error' | 'no-config'
-  const [sosEmailStatus, setSosEmailStatus] = useState('idle');
   const lastEmailSentRef = useRef({}); // Track last email sent time per room (debounce/cooldown)
 
   const sendAutomatedAlertEmail = async (roomName) => {
@@ -77,41 +73,6 @@ const Dashboard = () => {
       await sendEmailViaGmailAPI(googleAccessToken, emails, "🚨 CRITICAL ALERT - ReSHM System", emailText);
     } catch (err) {
       console.error('Failed to trigger automated email alert:', err);
-    }
-  };
-
-  const sendSosAlert = async () => {
-    setSosConfirmed(true);
-    setSosActive(false);
-    setSosEmailStatus('sending');
-
-    try {
-      let emails = [];
-      let googleAccessToken = '';
-
-      const stored = localStorage.getItem('reshm_settings');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        emails = parsed.emergencyEmails || [];
-        googleAccessToken = parsed.googleAccessToken || '';
-      }
-
-      if (emails.length === 0 || !googleAccessToken) {
-        setSosEmailStatus('no-config');
-        setTimeout(() => setSosEmailStatus('idle'), 6000);
-        return;
-      }
-
-      const emailText = `🚨 EMERGENCY: SOS Alert Triggered – ReSHM 🚨\n\nAn SOS alert was triggered from the ReSHM dashboard at ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.\n\nPlease check on the individual immediately.\n\n—\nReSHM Emergency Response System`;
-
-      await sendEmailViaGmailAPI(googleAccessToken, emails, "🚨 EMERGENCY: SOS Alert Triggered – ReSHM", emailText);
-
-      setSosEmailStatus('ok');
-      setTimeout(() => setSosEmailStatus('idle'), 6000);
-    } catch (err) {
-      console.error('Failed to trigger SOS email directly from frontend:', err);
-      setSosEmailStatus('error');
-      setTimeout(() => setSosEmailStatus('idle'), 8000);
     }
   };
 
@@ -267,93 +228,9 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* ── SOS Top Bar ───────────────────────────────────── */}
-      <div className="dashboard-sos-bar">
-        <div className="dashboard-sos-info">
-          <FiBell className="sos-label-icon" />
-          <span className="dashboard-sos-label">Emergency Response</span>
-        </div>
-        <button
-          className={`sos-btn ${sosConfirmed ? 'sos-btn-active' : ''}`}
-          onClick={() => {
-            if (!sosConfirmed) {
-              setSosActive(true);
-            } else {
-              setSosConfirmed(false);
-              setSosActive(false);
-            }
-          }}
-        >
-          <span className="sos-btn-ring" />
-          <FiAlertOctagon className="sos-btn-icon" />
-          {sosConfirmed ? 'CANCEL SOS' : 'SOS'}
-        </button>
-      </div>
 
-
-
-      {/* ── SOS Confirmation Modal ─────────────────────── */}
-      {sosActive && !sosConfirmed && (
-        <div className="sos-modal-overlay" onClick={() => setSosActive(false)}>
-          <div className="sos-modal" onClick={e => e.stopPropagation()}>
-            <div className="sos-modal-icon-wrap">
-              <FiAlertOctagon className="sos-modal-svg-icon" />
-            </div>
-            <h2 className="sos-modal-title">Send SOS Alert?</h2>
-            <p className="sos-modal-text">
-              This will immediately notify emergency contacts and authorities.
-              Are you sure you want to proceed?
-            </p>
-            <div className="sos-modal-actions">
-              <button className="sos-cancel-btn" onClick={() => setSosActive(false)}>
-                <FiX /> Cancel
-              </button>
-              <button
-                className="sos-confirm-btn"
-                onClick={sendSosAlert}
-              >
-                <FiAlertOctagon /> SEND SOS
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── SOS Active Alert Banner ────────────────────── */}
-      {sosConfirmed && (
-        <div className="sos-active-banner">
-          <FiAlertOctagon className="sos-banner-icon" />
-          <strong>SOS ALERT ACTIVE</strong> — Emergency services have been notified.
-          <button className="sos-dismiss-btn" onClick={() => setSosConfirmed(false)}>
-            <FiCheck /> Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* ── SOS Email Status Banner ─────────────────────── */}
-      {sosEmailStatus === 'sending' && (
-        <div className="sos-email-banner sos-email-sending">
-          <FiMail /> Sending alert email to emergency contacts…
-        </div>
-      )}
-      {sosEmailStatus === 'ok' && (
-        <div className="sos-email-banner sos-email-ok">
-          <FiCheck /> Alert email sent successfully to all emergency contacts.
-        </div>
-      )}
-      {sosEmailStatus === 'error' && (
-        <div className="sos-email-banner sos-email-error">
-          <FiX /> Email delivery failed — check your sender email &amp; app password in Settings.
-        </div>
-      )}
-      {sosEmailStatus === 'no-config' && (
-        <div className="sos-email-banner sos-email-error">
-          <FiX /> No email config found — add a sender email, app password &amp; emergency contacts in Settings.
-        </div>
-      )}
-
-      {/* ── Settings Bar (Room Select / Source) ────────────── */}
-      <div className="dashboard-settings-bar">
+      {/* ── Dashboard Header ────────────── */}
+      <div className="dashboard-header-bar">
         {user?.role === 'admin' && rooms.length > 1 ? (
           <div className="dashboard-room-select">
             <label htmlFor="room-select">Device / Room:</label>
