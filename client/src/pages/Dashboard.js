@@ -66,16 +66,55 @@ const Dashboard = () => {
         return;
       }
 
-      await axios.post('/api/sos', {
-        emails,
-        senderEmail,
-        senderPassword,
-        timestamp: new Date().toISOString()
-      });
-      setSosEmailStatus('ok');
-      setTimeout(() => setSosEmailStatus('idle'), 6000);
+      const smtpHost = senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
+                     : senderEmail.includes('@outlook') || senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
+                     : 'smtp.gmail.com';
+
+      const emailBody = `
+        <h2>🚨 EMERGENCY SOS ALERT 🚨</h2>
+        <p>This is an automated emergency alert from the ReSHM Dashboard.</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+        <p>Immediate attention is required!</p>
+      `;
+
+      let allSuccess = true;
+      for (const toEmail of emails) {
+        const payload = JSON.stringify({
+          Host: smtpHost,
+          Username: senderEmail,
+          Password: senderPassword,
+          To: toEmail,
+          From: senderEmail,
+          Subject: "🚨 EMERGENCY SOS ALERT - ReSHM System",
+          Body: emailBody,
+          nocache: Math.floor(1e6 * Math.random() + 1),
+          Action: "Send"
+        });
+
+        const response = await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded"
+          },
+          body: payload
+        });
+        
+        const result = await response.text();
+        if (result !== "OK") {
+          console.error("Email delivery failed to", toEmail, ". Reason:", result);
+          allSuccess = false;
+        }
+      }
+
+      if (allSuccess) {
+        setSosEmailStatus('ok');
+        setTimeout(() => setSosEmailStatus('idle'), 6000);
+      } else {
+        setSosEmailStatus('error');
+        setTimeout(() => setSosEmailStatus('idle'), 8000);
+      }
     } catch (err) {
-      console.error('Failed to trigger SOS email:', err);
+      console.error('Failed to trigger SOS email directly from frontend:', err);
       setSosEmailStatus('error');
       setTimeout(() => setSosEmailStatus('idle'), 8000);
     }
@@ -363,7 +402,8 @@ const Dashboard = () => {
             co2={hasReadings ? safeNum(latest.co2) : null}
             smokeDetected={latest?.smokeDetected ?? false}
             fireDetected={latest?.fireDetected ?? false}
-            altitude={hasReadings && latest.altitude != null ? safeNum(latest.altitude) : null}
+            temperature={hasReadings && latest.temperature != null ? safeNum(latest.temperature) : null}
+            humidity={hasReadings && latest.humidity != null ? safeNum(latest.humidity) : null}
             hasData={hasReadings}
           />
         </div>

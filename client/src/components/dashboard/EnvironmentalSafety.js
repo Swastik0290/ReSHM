@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   FiWind, FiCloud, FiAlertCircle, FiShield, FiCheckCircle,
-  FiAlertTriangle, FiXCircle, FiActivity, FiNavigation
+  FiAlertTriangle, FiXCircle, FiActivity, FiNavigation,
+  FiThermometer, FiDroplet
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import './EnvironmentalSafety.css';
@@ -11,8 +12,8 @@ import './EnvironmentalSafety.css';
 ────────────────────────────────────────────────────────── */
 const CO_WARN = 30; const CO_CRIT = 50; const CO_MAX = 100;
 const CO2_WARN = 800; const CO2_CRIT = 1000; const CO2_MAX = 2000;
-// Altitude: values above 3500 m risk altitude sickness (general guideline)
-const ALT_WARN = 2500; const ALT_CRIT = 3500; const ALT_MAX = 5000;
+const TEMP_WARN = 30; const TEMP_CRIT = 35; const TEMP_MAX = 50;
+const HUM_WARN = 60; const HUM_CRIT = 80; const HUM_MAX = 100;
 
 /* ──────────────────────────────────────────────────────────
    Helpers
@@ -31,11 +32,18 @@ const getCo2Status = (v) => {
   return { level: 'safe', label: 'SAFE', display: `${Number(v).toFixed(0)} ppm` };
 };
 
-const getAltitudeStatus = (v) => {
+const getTempStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
-  if (v >= ALT_CRIT) return { level: 'danger', label: 'HIGH ALT', display: `${Number(v).toFixed(1)} m` };
-  if (v >= ALT_WARN) return { level: 'warning', label: 'ELEVATED', display: `${Number(v).toFixed(1)} m` };
-  return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(1)} m` };
+  if (v >= TEMP_CRIT || v <= 10) return { level: 'danger', label: 'CRITICAL', display: `${Number(v).toFixed(1)}°C` };
+  if (v >= TEMP_WARN || v <= 15) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(1)}°C` };
+  return { level: 'safe', label: 'OPTIMAL', display: `${Number(v).toFixed(1)}°C` };
+};
+
+const getHumStatus = (v) => {
+  if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
+  if (v >= HUM_CRIT || v <= 20) return { level: 'danger', label: 'CRITICAL', display: `${Number(v).toFixed(1)}%` };
+  if (v >= HUM_WARN || v <= 30) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(1)}%` };
+  return { level: 'safe', label: 'OPTIMAL', display: `${Number(v).toFixed(1)}%` };
 };
 
 const clampPct = (v, max) => Math.min(100, Math.max(0, (v / max) * 100));
@@ -156,15 +164,18 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText })
 /* ──────────────────────────────────────────────────────────
    Main Component
 ────────────────────────────────────────────────────────── */
-const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDetected, altitude, hasData }) => {
+const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDetected, temperature, humidity, hasData }) => {
   const noData = !hasData;
 
   const co1 = getCoStatus(noData ? null : coSensor1);
   const co2s = getCoStatus(noData ? null : coSensor2);
   const co2v = getCo2Status(noData ? null : co2);
 
-  const altv = getAltitudeStatus(altitude);
-  const altPct = (noData || altitude == null) ? 0 : clampPct(altitude, ALT_MAX);
+  const tempv = getTempStatus(temperature);
+  const tempPct = (noData || temperature == null) ? 0 : clampPct(temperature, TEMP_MAX);
+
+  const humv = getHumStatus(humidity);
+  const humPct = (noData || humidity == null) ? 0 : clampPct(humidity, HUM_MAX);
 
   const co1Pct = noData ? 0 : clampPct(coSensor1, CO_MAX);
   const co2sPct = noData ? 0 : clampPct(coSensor2, CO_MAX);
@@ -234,14 +245,24 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
           inactiveText="No Fire"
         />
         <IndicatorCard
-          icon={<FiNavigation />}
-          title="Altitude"
-          subtitle="Metres above sea level"
-          level={altv.level}
-          statusLabel={altv.label}
-          value={altv.display}
-          barPct={altPct}
-          noData={altitude == null ? true : noData}
+          icon={<FiThermometer />}
+          title="Temperature"
+          subtitle="Ambient Room Temp"
+          level={tempv.level}
+          statusLabel={tempv.label}
+          value={tempv.display}
+          barPct={tempPct}
+          noData={temperature == null ? true : noData}
+        />
+        <IndicatorCard
+          icon={<FiDroplet />}
+          title="Humidity"
+          subtitle="Relative Humidity"
+          level={humv.level}
+          statusLabel={humv.label}
+          value={humv.display}
+          barPct={humPct}
+          noData={humidity == null ? true : noData}
         />
       </div>
 
@@ -250,7 +271,7 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
         <span className="env-legend-item env-legend-safe">Safe</span>
         <span className="env-legend-item env-legend-warning">Warning</span>
         <span className="env-legend-item env-legend-danger">Danger</span>
-        <span className="env-legend-right">CO: warn 30 · crit 50 ppm &nbsp;|&nbsp; CO₂: warn 800 · crit 1000 ppm &nbsp;|&nbsp; Alt: warn 2500 · crit 3500 m</span>
+        <span className="env-legend-right">CO: warn 30 · crit 50 &nbsp;|&nbsp; CO₂: warn 800 · crit 1000 &nbsp;|&nbsp; Temp: warn 30°C · crit 35°C</span>
       </div>
     </div>
   );

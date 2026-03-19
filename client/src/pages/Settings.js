@@ -18,6 +18,8 @@ const Settings = () => {
   const [settings, setSettings] = useState(defaultSettings);
   const [saved, setSaved] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [verifyStatus, setVerifyStatus] = useState('idle');
+  const [verifyMessage, setVerifyMessage] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem(SETTINGS_KEY);
@@ -33,6 +35,56 @@ const Settings = () => {
   const updateSetting = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
     setSaved(false);
+  };
+
+  const testEmailConnection = async () => {
+    if (!settings.senderEmail || !settings.senderPassword) {
+      setVerifyMessage('Please enter both email and password first.');
+      setVerifyStatus('error');
+      setTimeout(() => setVerifyStatus('idle'), 4000);
+      return;
+    }
+
+    setVerifyStatus('testing');
+    try {
+      const smtpHost = settings.senderEmail.includes('@yahoo') ? 'smtp.mail.yahoo.com' 
+                     : settings.senderEmail.includes('@outlook') || settings.senderEmail.includes('@hotmail') ? 'smtp-mail.outlook.com'
+                     : 'smtp.gmail.com';
+
+      const payload = JSON.stringify({
+        Host: smtpHost,
+        Username: settings.senderEmail,
+        Password: settings.senderPassword,
+        To: settings.senderEmail, // send to themselves to verify
+        From: settings.senderEmail,
+        Subject: "✅ ReSHM System - Email Verification Successful",
+        Body: "<h3>Verification Successful</h3><p>Your ReSHM sender email configuration is working correctly.</p>",
+        nocache: Math.floor(1e6 * Math.random() + 1),
+        Action: "Send"
+      });
+
+      const response = await fetch("https://smtpjs.com/v3/smtpjs.aspx?", {
+        method: "POST",
+        headers: { "Content-type": "application/x-www-form-urlencoded" },
+        body: payload
+      });
+      
+      const result = await response.text();
+      if (result === "OK") {
+        setVerifyStatus('success');
+        setVerifyMessage('Verification email sent successfully! Please check your inbox.');
+      } else {
+        setVerifyStatus('error');
+        setVerifyMessage('Failed: ' + result);
+      }
+    } catch (err) {
+      setVerifyStatus('error');
+      setVerifyMessage('Failed to connect to verification server.');
+    }
+    setTimeout(() => {
+      setVerifyStatus('idle');
+      setVerifyMessage('');
+    }, 8000);
   };
 
   const addEmail = () => {
@@ -148,6 +200,22 @@ const Settings = () => {
               onChange={(e) => updateSetting('senderPassword', e.target.value)}
               placeholder="16-character app password"
             />
+          </div>
+
+          <div className="setting-item">
+            <button 
+              className="settings-save-btn" 
+              style={{marginTop: '10px', backgroundColor: 'var(--status-safe)'}}
+              onClick={testEmailConnection}
+              disabled={verifyStatus === 'testing'}
+            >
+              {verifyStatus === 'testing' ? 'Verifying...' : 'Verify Sender Config By Sending Test Email'}
+            </button>
+            {verifyMessage && (
+              <p style={{marginTop: '10px', fontSize: '0.9rem', color: verifyStatus === 'success' ? 'var(--status-safe)' : 'var(--status-danger)'}}>
+                {verifyMessage}
+              </p>
+            )}
           </div>
         </div>
 
