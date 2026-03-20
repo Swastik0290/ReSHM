@@ -18,12 +18,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Compensate for zoom: 0.85 on 1024×600 (returns effective height to 100vh) ── */
-@media (max-width: 1100px) {
-  .sidebar {
-    height: 120vh;
-  }
-}
+
 
 /* On mobile the sidebar slides in from left as a drawer */
 @media (max-width: 768px) {
