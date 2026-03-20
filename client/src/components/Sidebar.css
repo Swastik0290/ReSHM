@@ -18,12 +18,10 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Auto-collapse at ≤ 1100 px (sidebar switched to icon-rail via JS) ── */
-/* The JS matchMedia in Layout.js sets collapsed=true which adds the         */
-/* .collapsed class — these rules ensure the CSS width also matches.         */
+/* ── Compensate for zoom: 0.85 on 1024×600 (returns effective height to 100vh) ── */
 @media (max-width: 1100px) {
-  .sidebar:not(.mobile-open) {
-    width: 72px;
+  .sidebar {
+    height: 120vh;
   }
 }
 

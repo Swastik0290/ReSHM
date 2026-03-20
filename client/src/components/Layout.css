@@ -22,11 +22,10 @@
   margin-left: 72px;
 }
 
-/* ── Compact view at ≤ 1100 px (matches sidebar auto-collapse) ─ */
+/* ── Compensate for zoom: 0.85 on 1024×600 (returns effective height to 100vh) ── */
 @media (max-width: 1100px) {
-  .layout-main.collapsed {
-    margin-left: 72px;
-    padding: 8px;
+  .layout, .layout-main {
+    min-height: 120vh;
   }
 }
 

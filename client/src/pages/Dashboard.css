@@ -186,45 +186,6 @@
   }
 }
 
-/* ── Compact view at ≤ 1100 px (1024×600 display and similar) ── */
-@media (max-width: 1100px) {
-  .dashboard {
-    gap: 6px;
-  }
-  .dashboard-header-bar {
-    padding: 8px 12px;
-    border-radius: 12px;
-    margin-bottom: 4px;
-  }
-  .dashboard-room-select label {
-    font-size: 12px;
-  }
-  .dashboard-room-select select {
-    padding: 6px 28px 6px 10px;
-    font-size: 12px;
-    min-width: 130px;
-    max-width: 200px;
-  }
-  .dashboard-source-indicator {
-    font-size: 11px;
-  }
-  .source-badge {
-    padding: 3px 10px;
-    font-size: 11px;
-  }
-  .no-alert-text {
-    font-size: 11px;
-  }
-  .dashboard-alert-container {
-    padding: 6px 12px;
-    margin: 0 8px;
-    min-height: 32px;
-  }
-  .dashboard-columns {
-    gap: 8px;
-  }
-}
-
 
 .dashboard-col {
   min-width: 0;
