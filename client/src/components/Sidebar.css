@@ -18,6 +18,35 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── 1024×600: auto-collapse to icon-rail ───────────────── */
+@media (max-width: 1024px) and (max-height: 640px) {
+  .sidebar {
+    width: 72px;
+  }
+  .sidebar .nav-label,
+  .sidebar .sidebar-title,
+  .sidebar .user-info,
+  .sidebar .logout-btn span {
+    display: none;
+  }
+  .sidebar .nav-item {
+    justify-content: center;
+    padding: 10px;
+    margin: 2px 6px;
+  }
+  .sidebar-header {
+    padding: 12px 8px;
+    justify-content: center;
+    min-height: 48px;
+  }
+  .toggle-btn {
+    display: none;
+  }
+  .sidebar-footer {
+    padding: 10px 6px;
+  }
+}
+
 /* On mobile the sidebar slides in from left as a drawer */
 @media (max-width: 768px) {
   .sidebar {

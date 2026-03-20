@@ -17,8 +17,19 @@
   overflow-x: hidden;
 }
 
+/* ── 1024×600 optimised view ─────────────────────────────── */
+@media (max-width: 1024px) and (max-height: 640px) {
+  .layout-main {
+    margin-left: 72px;   /* sidebar auto-collapses to icon-rail */
+    padding: 8px;
+  }
+  .layout-main.collapsed {
+    margin-left: 72px;
+  }
+}
+
 .layout-main.collapsed {
-  margin-left: 80px;
+  margin-left: 72px;
 }
 
 /* ── Hamburger button ────────────────────────────────────── */
