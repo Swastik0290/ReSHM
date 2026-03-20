@@ -16,8 +16,6 @@ const Layout = ({ children }) => {
     document.documentElement.setAttribute('data-theme', settings.darkMode ? 'dark' : 'light');
   }, [settings.darkMode]);
 
-
-
   const showPending = user && user.role !== 'admin' && user.verified === false;
 
   return (
