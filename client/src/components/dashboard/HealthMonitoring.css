@@ -333,6 +333,66 @@
   }
 }
 
+/* ── 1024×600 compact ────────────────────────────────────── */
+@media (max-width: 1024px) and (max-height: 640px) {
+  .health-panel {
+    gap: 6px;
+  }
+  .health-panel-title {
+    font-size: 14px;
+  }
+  .health-panel-subtitle {
+    font-size: 11px;
+  }
+  .health-panel-header-icon {
+    font-size: 16px;
+  }
+  .health-cards-container {
+    gap: 8px;
+  }
+  .health-metric-card {
+    padding: 10px 12px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+  .pulse-value-display {
+    font-size: 28px;
+  }
+  .pulse-unit {
+    font-size: 13px;
+  }
+  .health-metric-label {
+    font-size: 11px;
+  }
+  .health-metric-chip {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+  .health-metric-bands {
+    padding-top: 8px;
+    gap: 4px;
+  }
+  .health-band {
+    font-size: 9px;
+    padding: 4px 2px;
+  }
+  .health-waiting {
+    padding: 10px 8px;
+    gap: 8px;
+  }
+  .health-waiting-heart {
+    font-size: 32px;
+  }
+  .health-waiting-title {
+    font-size: 13px;
+  }
+  .health-waiting-sub {
+    font-size: 11px;
+  }
+  .spo2-gauge-svg {
+    max-width: 160px;
+  }
+}
 
 /* ── Number Roll-In animation ────────────────────────────── */
 @keyframes number-roll-in {
