@@ -18,32 +18,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── 1024×600: auto-collapse to icon-rail ───────────────── */
-@media (max-width: 1024px) and (max-height: 640px) {
-  .sidebar {
+/* ── Auto-collapse at ≤ 1100 px (sidebar switched to icon-rail via JS) ── */
+/* The JS matchMedia in Layout.js sets collapsed=true which adds the         */
+/* .collapsed class — these rules ensure the CSS width also matches.         */
+@media (max-width: 1100px) {
+  .sidebar:not(.mobile-open) {
     width: 72px;
-  }
-  .sidebar .nav-label,
-  .sidebar .sidebar-title,
-  .sidebar .user-info,
-  .sidebar .logout-btn span {
-    display: none;
-  }
-  .sidebar .nav-item {
-    justify-content: center;
-    padding: 10px;
-    margin: 2px 6px;
-  }
-  .sidebar-header {
-    padding: 12px 8px;
-    justify-content: center;
-    min-height: 48px;
-  }
-  .toggle-btn {
-    display: none;
-  }
-  .sidebar-footer {
-    padding: 10px 6px;
   }
 }
 

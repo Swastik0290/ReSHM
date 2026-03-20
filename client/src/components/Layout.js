@@ -16,6 +16,16 @@ const Layout = ({ children }) => {
     document.documentElement.setAttribute('data-theme', settings.darkMode ? 'dark' : 'light');
   }, [settings.darkMode]);
 
+  // Auto-collapse sidebar on small / compact screens (≤ 1100 px wide)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1100px)');
+    const handler = (e) => setSidebarCollapsed(e.matches);
+    // Set initial state
+    setSidebarCollapsed(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   const showPending = user && user.role !== 'admin' && user.verified === false;
 
   return (

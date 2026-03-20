@@ -144,12 +144,15 @@
 /* ── Metric card ──────────────────────────────────────────── */
 .health-cards-container {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   flex: 1;
+  overflow: hidden;   /* prevent right-side bleed */
+  min-width: 0;
 }
 
 .health-metric-card {
   flex: 1;
+  min-width: 0;        /* allow flex shrink below content size */
   background: var(--bg-card);
   border-radius: 14px;
   padding: 14px;
@@ -159,6 +162,7 @@
   flex-direction: column;
   gap: 10px;
   transition: box-shadow 0.2s, transform 0.2s;
+  overflow: hidden;
 }
 
 .health-metric-card:hover {
@@ -329,8 +333,8 @@
   }
 }
 
-/* ── 1024×600 compact ────────────────────────────────────── */
-@media (max-width: 1024px) and (max-height: 640px) {
+/* ── Compact view at ≤ 1100 px ───────────────────────────── */
+@media (max-width: 1100px) {
   .health-panel {
     gap: 6px;
   }
@@ -389,6 +393,7 @@
     max-width: 160px;
   }
 }
+
 
 /* ── Number Roll-In animation ────────────────────────────── */
 @keyframes number-roll-in {
