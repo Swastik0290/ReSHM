@@ -187,8 +187,8 @@
 }
 
 
-/* ── 1024×600 compact optimisation ─────────────────────────────────────── */
-@media (max-width: 1024px) and (max-height: 640px) {
+/* ── up to 1019px compact ────────────────────────────── */
+@media (max-width: 1019px) and (max-height: 640px) {
   .dashboard {
     gap: 6px;
   }

@@ -18,8 +18,9 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── 1024×600: auto-collapse to icon-rail ───────────────── */
-@media (max-width: 1024px) and (max-height: 640px) {
+/* ── up to 1019px compact: auto-collapse to icon-rail ─────── */
+/* NOTE: stops at 1019px so kiosk override (1020-1026px) fires cleanly */
+@media (max-width: 1019px) and (max-height: 640px) {
   .sidebar {
     width: 72px;
   }

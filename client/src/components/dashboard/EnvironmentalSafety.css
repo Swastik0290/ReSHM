@@ -277,8 +277,8 @@
 }
 
 
-/* ── 1024×600 compact ────────────────────────────────────── */
-@media (max-width: 1024px) and (max-height: 640px) {
+/* ── up to 1019px compact ────────────────────────────── */
+@media (max-width: 1019px) and (max-height: 640px) {
   .env-safety-panel {
     gap: 6px;
   }
