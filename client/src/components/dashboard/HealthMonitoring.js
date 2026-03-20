@@ -7,14 +7,14 @@ import './HealthMonitoring.css';
 ────────────────────────────────────────────────────────── */
 const getSpo2Status = (v) => {
     if (v == null || isNaN(v)) return { level: 'none', label: 'No Data' };
-    if (v < 90) return { level: 'danger', label: 'CRITICAL LOW' };
+    if (v < 90) return { level: 'alert', label: 'CRITICAL LOW' };
     if (v < 95) return { level: 'warning', label: 'LOW' };
     return { level: 'safe', label: 'NORMAL' };
 };
 
 const getPulseStatus = (v) => {
     if (v == null || isNaN(v)) return { level: 'none', label: 'No Data' };
-    if (v >= 120 || v <= 40) return { level: 'danger', label: 'CRITICAL' };
+    if (v >= 120 || v <= 40) return { level: 'alert', label: 'CRITICAL' };
     if (v >= 100 || v <= 50) return { level: 'warning', label: 'ABNORMAL' };
     return { level: 'safe', label: 'NORMAL' };
 };
@@ -22,7 +22,7 @@ const getPulseStatus = (v) => {
 const LEVEL_ICONS = {
     safe: <FiCheckCircle />,
     warning: <FiAlertTriangle />,
-    danger: <FiXCircle />,
+    alert: <FiXCircle />,
     none: <FiActivity />,
 };
 
@@ -63,7 +63,7 @@ const ArcGauge = ({ value, level, hasValue }) => {
         ? Math.min(1, Math.max(0, value / 100))
         : 0;
 
-    const colors = { safe: '#10b981', warning: '#f59e0b', danger: '#ef4444', none: '#9ca3af' };
+    const colors = { safe: '#10b981', warning: '#f59e0b', alert: '#ef4444', none: '#9ca3af' };
     const color = colors[level] || colors.none;
 
     const startAngleDeg = 150;          // arc starts bottom-left
@@ -189,7 +189,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
                             <FiActivity className="health-metric-icon" />
                             <span className="health-metric-label">SpO₂</span>
                             <div className={`health-metric-chip health-chip-${spo2Status.level}`}>
-                                {spo2Status.level === 'danger' && <span className="health-chip-pulse" />}
+                                {spo2Status.level === 'alert' && <span className="health-chip-pulse" />}
                                 {LEVEL_ICONS[spo2Status.level]}
                                 {spo2Status.label}
                             </div>
@@ -208,7 +208,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
                         <div className="health-metric-bands">
                             <span className="health-band health-band-safe">≥95%</span>
                             <span className="health-band health-band-warn">90–94%</span>
-                            <span className="health-band health-band-danger">&lt;90%</span>
+                            <span className="health-band health-band-alert">&lt;90%</span>
                         </div>
                     </div>
 
@@ -218,7 +218,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
                             <FiHeart className="health-metric-icon" />
                             <span className="health-metric-label">Pulse</span>
                             <div className={`health-metric-chip health-chip-${pulseStatus.level}`}>
-                                {pulseStatus.level === 'danger' && <span className="health-chip-pulse" />}
+                                {pulseStatus.level === 'alert' && <span className="health-chip-pulse" />}
                                 {LEVEL_ICONS[pulseStatus.level]}
                                 {pulseStatus.label}
                             </div>
@@ -234,7 +234,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
                         <div className="health-metric-bands">
                             <span className="health-band health-band-safe">60-99</span>
                             <span className="health-band health-band-warn">50-59</span>
-                            <span className="health-band health-band-danger">≥120</span>
+                            <span className="health-band health-band-alert">≥120</span>
                         </div>
                     </div>
                 </div>

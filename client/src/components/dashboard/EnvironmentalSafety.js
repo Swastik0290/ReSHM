@@ -19,14 +19,14 @@ const HUM_WARN = 60; const HUM_CRIT = 80;
 ────────────────────────────────────────────────────────── */
 const getCoStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
-  if (v >= CO_CRIT) return { level: 'danger', label: 'DANGER', display: `${Number(v).toFixed(2)} ppm` };
+  if (v >= CO_CRIT) return { level: 'alert', label: 'ALERT', display: `${Number(v).toFixed(2)} ppm` };
   if (v >= CO_WARN) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(2)} ppm` };
   return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(2)} ppm` };
 };
 
 const getCo2Status = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
-  if (v >= CO2_CRIT) return { level: 'danger', label: 'DANGER', display: `${Number(v).toFixed(0)} ppm` };
+  if (v >= CO2_CRIT) return { level: 'alert', label: 'ALERT', display: `${Number(v).toFixed(0)} ppm` };
   if (v >= CO2_WARN) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(0)} ppm` };
   return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(0)} ppm` };
 };
@@ -38,7 +38,7 @@ const getTempStatus = (v) => {
 
 const getHumStatus = (v) => {
   if (v == null || isNaN(v)) return { level: 'unknown', label: 'NO DATA', display: '—' };
-  if (v >= HUM_CRIT || v <= 20) return { level: 'danger', label: 'CRITICAL', display: `${Number(v).toFixed(1)}%` };
+  if (v >= HUM_CRIT || v <= 20) return { level: 'alert', label: 'CRITICAL', display: `${Number(v).toFixed(1)}%` };
   if (v >= HUM_WARN || v <= 30) return { level: 'warning', label: 'WARNING', display: `${Number(v).toFixed(1)}%` };
   return { level: 'safe', label: 'NORMAL', display: `${Number(v).toFixed(1)}%` };
 };
@@ -46,7 +46,7 @@ const getHumStatus = (v) => {
 const LEVEL_ICONS = {
   safe: <FiCheckCircle />,
   warning: <FiAlertTriangle />,
-  danger: <FiXCircle />,
+  alert: <FiXCircle />,
   unknown: <FiActivity />,
 };
 
@@ -97,7 +97,7 @@ const CombinedCoCard = ({ co1, co2s }) => (
         <div className="env-sensor-label">
           <span>Sensor 1</span>
           <div className={`env-level-chip env-chip-${co1.level}`}>
-            {co1.level === 'danger' && <span className="env-chip-pulse" />}
+            {co1.level === 'alert' && <span className="env-chip-pulse" />}
             {LEVEL_ICONS[co1.level]} {co1.label}
           </div>
         </div>
@@ -107,7 +107,7 @@ const CombinedCoCard = ({ co1, co2s }) => (
         <div className="env-sensor-label">
           <span>Sensor 2</span>
           <div className={`env-level-chip env-chip-${co2s.level}`}>
-            {co2s.level === 'danger' && <span className="env-chip-pulse" />}
+            {co2s.level === 'alert' && <span className="env-chip-pulse" />}
             {LEVEL_ICONS[co2s.level]} {co2s.label}
           </div>
         </div>
@@ -127,7 +127,7 @@ const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value }) => 
         <div className="env-card-subtitle">{subtitle}</div>
       </div>
       <div className={`env-level-chip env-chip-${level}`}>
-        {level === 'danger' && <span className="env-chip-pulse" />}
+        {level === 'alert' && <span className="env-chip-pulse" />}
         {LEVEL_ICONS[level]}
         {statusLabel}
       </div>
@@ -138,7 +138,7 @@ const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value }) => 
 
 /** Binary card (Generic) */
 const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, className = "" }) => {
-  const level = noData ? 'unknown' : detected ? 'danger' : 'safe';
+  const level = noData ? 'unknown' : detected ? 'alert' : 'safe';
   const label = noData ? 'NO DATA' : detected ? 'DETECTED' : 'NORMAL';
   const value = noData ? '—' : detected ? activeText : inactiveText;
 
@@ -151,7 +151,7 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, c
           <div className="env-card-subtitle">Binary sensor</div>
         </div>
         <div className={`env-level-chip env-chip-${level}`}>
-          {level === 'danger' && <span className="env-chip-pulse" />}
+          {level === 'alert' && <span className="env-chip-pulse" />}
           {LEVEL_ICONS[level]}
           {label}
         </div>

@@ -172,7 +172,7 @@
 
 .text-safe { color: #10b981; }
 .text-warning { color: #f59e0b; }
-.text-danger { color: #ef4444; }
+.text-alert { color: #ef4444; }
 .text-unknown { color: var(--text-secondary); }
 
 /* ── Status Chip (Minimal) ──────────────────────────────── */
@@ -200,7 +200,7 @@
   color: #d97706;
 }
 
-.env-chip-danger {
+.env-chip-alert {
   background: rgba(239, 68, 68, 0.1);
   color: #dc2626;
 }
