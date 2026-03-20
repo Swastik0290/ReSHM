@@ -14,10 +14,9 @@ const CO2_WARN = 800;
 const hasRoomAlert = (reading) => {
   if (!reading) return false;
   const co1 = Number(reading.coSensor1 ?? 0);
-  const co2s = Number(reading.coSensor2 ?? 0);
   const co2 = Number(reading.co2 ?? 0);
   return (
-    co1 >= CO_WARN || co2s >= CO_WARN ||
+    co1 >= CO_WARN ||
     co2 >= CO2_WARN ||
     reading.smokeDetected === true ||
     reading.fireDetected === true ||
@@ -239,7 +238,6 @@ const Dashboard = () => {
         <div className="dashboard-col dashboard-col-left">
           <EnvironmentalSafety
             coSensor1={hasReadings ? safeNum(latest.coSensor1) : null}
-            coSensor2={hasReadings ? safeNum(latest.coSensor2) : null}
             co2={hasReadings ? safeNum(latest.co2) : null}
             smokeDetected={latest?.smokeDetected ?? false}
             fireDetected={latest?.fireDetected ?? false}

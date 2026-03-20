@@ -82,40 +82,7 @@ const AnimatedValue = ({ value, className, spanClass }) => {
    Sub-components
 ────────────────────────────────────────────────────────── */
 
-/** Combined CO Monitoring Card */
-const CombinedCoCard = ({ co1, co2s }) => (
-  <div className="env-indicator-card env-card-full-width env-combined-co-card">
-    <div className="env-card-header">
-      <div className="env-card-icon-wrap"><FiWind /></div>
-      <div className="env-card-labels">
-        <div className="env-card-title">CO Monitoring</div>
-        <div className="env-card-subtitle">Dual Sensor Array</div>
-      </div>
-    </div>
-    <div className="env-combined-sensors">
-      <div className="env-combined-sensor">
-        <div className="env-sensor-label">
-          <span>Sensor 1</span>
-          <div className={`env-level-chip env-chip-${co1.level}`}>
-            {co1.level === 'alert' && <span className="env-chip-pulse" />}
-            {LEVEL_ICONS[co1.level]} {co1.label}
-          </div>
-        </div>
-        <AnimatedValue value={co1.display} className={`env-card-value text-${co1.level}`} spanClass="env-value-number" />
-      </div>
-      <div className="env-combined-sensor">
-        <div className="env-sensor-label">
-          <span>Sensor 2</span>
-          <div className={`env-level-chip env-chip-${co2s.level}`}>
-            {co2s.level === 'alert' && <span className="env-chip-pulse" />}
-            {LEVEL_ICONS[co2s.level]} {co2s.label}
-          </div>
-        </div>
-        <AnimatedValue value={co2s.display} className={`env-card-value text-${co2s.level}`} spanClass="env-value-number" />
-      </div>
-    </div>
-  </div>
-);
+
 
 /** Generic indicator card */
 const IndicatorCard = ({ icon, title, subtitle, level, statusLabel, value }) => (
@@ -164,11 +131,10 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, c
 /* ──────────────────────────────────────────────────────────
    Main Component
 ────────────────────────────────────────────────────────── */
-const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDetected, temperature, humidity, hasData }) => {
+const EnvironmentalSafety = ({ coSensor1, co2, smokeDetected, fireDetected, temperature, humidity, hasData }) => {
   const noData = !hasData;
 
   const co1 = getCoStatus(noData ? null : coSensor1);
-  const co2s = getCoStatus(noData ? null : coSensor2);
   const co2v = getCo2Status(noData ? null : co2);
 
   const tempv = getTempStatus(temperature);
@@ -191,7 +157,14 @@ const EnvironmentalSafety = ({ coSensor1, coSensor2, co2, smokeDetected, fireDet
 
       {/* Cards */}
       <div className="env-cards-grid">
-        <CombinedCoCard co1={co1} co2s={co2s} />
+        <IndicatorCard
+          icon={<FiWind />}
+          title="Carbon Monoxide"
+          subtitle="CO Level"
+          level={co1.level}
+          statusLabel={co1.label}
+          value={co1.display}
+        />
         
         <IndicatorCard
           icon={<FiCloud />}
