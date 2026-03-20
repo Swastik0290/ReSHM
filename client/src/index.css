@@ -49,6 +49,10 @@ html {
 @media (max-width: 1100px) {
   html {
     zoom: 0.85; /* makes 1024px act like ~1205px CSS width */
+    width: calc(100vw / 0.85); /* stretch the rendered width back to full screen */
+  }
+  body {
+    max-width: none; /* allow body to stretch to html width */
   }
 }
 
