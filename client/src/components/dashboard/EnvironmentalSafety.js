@@ -4,7 +4,6 @@ import {
   FiAlertTriangle, FiXCircle, FiActivity,
   FiThermometer, FiDroplet, FiSun
 } from 'react-icons/fi';
-import { FaFire } from 'react-icons/fa';
 import './EnvironmentalSafety.css';
 
 /* ──────────────────────────────────────────────────────────
