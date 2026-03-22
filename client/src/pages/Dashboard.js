@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useRoom } from '../context/RoomContext';
 import { FiAlertOctagon } from 'react-icons/fi';
+import { FaFire } from 'react-icons/fa';
 import EnvironmentalSafety from '../components/dashboard/EnvironmentalSafety';
 import HealthMonitoring from '../components/dashboard/HealthMonitoring';
 import './Dashboard.css';
@@ -181,6 +182,8 @@ const Dashboard = () => {
   const hasReadings = !!latest;
   const safeNum = (v, def = 0) => (v != null ? Number(v) : def);
 
+  const isFireAlert = hasReadings && ((latest.smokeDetected && latest.heat) || latest.fireDetected);
+
   const onRoomChange = (e) => {
     const id = e.target.value;
     if (id) {
@@ -192,6 +195,16 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
+      {isFireAlert && (
+        <div className="fire-alert-overlay">
+          <div className="fire-alert-modal">
+            <FiAlertOctagon className="fire-alert-icon-large" />
+            <h2 className="fire-alert-title">CRITICAL FIRE ALERT <FaFire /></h2>
+            <p className="fire-alert-desc">Extreme heat and smoke detected in <strong>{rooms.find(r => r._id === roomId)?.name || 'the room'}</strong>!</p>
+            <p className="fire-alert-action">EVACUATE IMMEDIATELY</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Dashboard Header ────────────── */}
       <div className="dashboard-header-bar">
