@@ -252,8 +252,8 @@ const Dashboard = () => {
         {/* RIGHT — Health Monitoring */}
         <div className="dashboard-col dashboard-col-right">
           <HealthMonitoring
-            spo2={hasReadings && Number(latest.oxygen) > 0 ? latest.oxygen : null}
-            pulse={hasReadings && Number(latest.pulse) > 0 ? latest.pulse : null}
+            spo2={hasReadings ? latest.oxygen : null}
+            pulse={hasReadings ? latest.pulse : null}
             hasData={hasReadings}
             roomId={roomId}
           />
