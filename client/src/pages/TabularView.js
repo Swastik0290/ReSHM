@@ -225,6 +225,7 @@ const TabularView = () => {
       'SpO2 (%)': Number((reading.oxygen ?? 0).toFixed(0)),
       'Pulse (bpm)': Number((reading.pulse ?? 0).toFixed(0)),
       'Smoke Detected': reading.smokeDetected ? 'Yes' : 'No',
+      'Heat Detected': reading.heat ? 'Yes' : 'No',
       'Fire Detected': reading.fireDetected ? 'Yes' : 'No',
       Source: reading.source || 'Unknown',
       Alerts: (reading.alerts || []).join('; ')
@@ -389,6 +390,7 @@ const TabularView = () => {
                   <th>SpO2</th>
                   <th>Pulse</th>
                   <th>Smoke</th>
+                  <th>Heat</th>
                   <th>Fire</th>
                   <th>Source</th>
                 </tr>
@@ -396,7 +398,7 @@ const TabularView = () => {
               <tbody>
                 {readings.length === 0 ? (
                   <tr>
-                    <td colSpan="14" className="no-data">No readings available</td>
+                    <td colSpan="15" className="no-data">No readings available</td>
                   </tr>
                 ) : (
                   readings.map((reading) => (
@@ -413,6 +415,7 @@ const TabularView = () => {
                       <td>{(reading.oxygen ?? 0).toFixed(0)}%</td>
                       <td>{(reading.pulse ?? 0).toFixed(0)} bpm</td>
                       <td>{reading.smokeDetected ? '🔴 Yes' : '✅ No'}</td>
+                      <td>{reading.heat ? '🔴 Yes' : '✅ No'}</td>
                       <td>{reading.fireDetected ? '🔴 Yes' : '✅ No'}</td>
                       <td>{reading.source || 'Unknown'}</td>
                     </tr>

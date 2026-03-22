@@ -75,6 +75,11 @@ const sensorReadingSchema = new mongoose.Schema({
     default: false,
     required: true
   },
+  heat: {
+    type: Boolean,
+    default: false,
+    required: true
+  },
   alerts: {
     type: [String],
     default: []
@@ -154,12 +159,12 @@ sensorReadingSchema.methods.checkThresholds = function () {
     alerts.push('WARNING: Elevated humidity');
   }
 
-  if (this.smokeDetected) {
-    alerts.push('CRITICAL: Smoke detected!');
-  }
-
-  if (this.fireDetected) {
+  if (this.smokeDetected && this.heat) {
     alerts.push('CRITICAL: Fire detected!');
+  } else if (this.smokeDetected) {
+    alerts.push('CRITICAL: Smoke detected!');
+  } else if (this.heat) {
+    alerts.push('CRITICAL: Extreme heat detected!');
   }
 
   this.alerts = alerts;

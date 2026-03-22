@@ -23,6 +23,7 @@ const hasRoomAlert = (reading) => {
     co2 >= CO2_WARN ||
     reading.smokeDetected === true ||
     reading.fireDetected === true ||
+    reading.heat === true ||
     (oxygen > 0 && oxygen < 90) ||
     (pulse > 0 && (pulse >= 120 || pulse <= 40))
   );
@@ -243,6 +244,7 @@ const Dashboard = () => {
             co2={hasReadings ? safeNum(latest.co2) : null}
             smokeDetected={latest?.smokeDetected ?? false}
             fireDetected={latest?.fireDetected ?? false}
+            heat={latest?.heat ?? false}
             temperature={hasReadings && latest.temperature != null ? safeNum(latest.temperature) : null}
             humidity={hasReadings && latest.humidity != null ? safeNum(latest.humidity) : null}
             hasData={hasReadings}

@@ -17,6 +17,7 @@ const INGEST_DEFAULTS = {
   pulse: 72,
   smokeDetected: false,
   fireDetected: false,
+  heat: false,
   altitude: null
 };
 
@@ -73,6 +74,7 @@ router.post('/ingest', [
   body('pulse').optional().isFloat(),
   body('smokeDetected').optional().isBoolean(),
   body('fireDetected').optional().isBoolean(),
+  body('heat').optional().isBoolean(),
   body('altitude').optional().isFloat(),
   body('source').optional().isIn(['Modem', 'LAN', 'Unknown', 'WIFI'])
 ], async (req, res) => {
@@ -106,6 +108,7 @@ router.post('/ingest', [
       pulse: req.body.pulse != null ? parseFloat(req.body.pulse) : INGEST_DEFAULTS.pulse,
       smokeDetected: req.body.smokeDetected === true,
       fireDetected: req.body.fireDetected === true,
+      heat: req.body.heat === true,
       altitude: req.body.altitude != null ? parseFloat(req.body.altitude) : INGEST_DEFAULTS.altitude,
       source: req.body.source || 'Unknown',
       timestamp: new Date()
@@ -147,6 +150,7 @@ router.post('/reading', [
   body('pulse').isFloat().withMessage('Pulse reading is required'),
   body('smokeDetected').isBoolean().withMessage('Smoke detection status is required'),
   body('fireDetected').isBoolean().withMessage('Fire detection status is required'),
+  body('heat').isBoolean().withMessage('Heat status is required'),
   body('altitude').optional().isFloat(),
   body('source').optional().isIn(['Modem', 'LAN', 'Unknown', 'WIFI'])
 ], async (req, res) => {
@@ -168,6 +172,7 @@ router.post('/reading', [
       pulse,
       smokeDetected,
       fireDetected,
+      heat,
       altitude,
       source
     } = req.body;
@@ -191,6 +196,7 @@ router.post('/reading', [
       pulse,
       smokeDetected,
       fireDetected,
+      heat,
       altitude,
       source: source || 'Unknown',
       timestamp: new Date()
@@ -353,7 +359,7 @@ router.get('/alerts/:roomId', authenticate, checkRoomAccess, async (req, res) =>
     })
       .sort({ timestamp: -1 })
       .limit(limit)
-      .select('timestamp alerts temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected');
+      .select('timestamp alerts temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected heat');
 
     res.json(readings);
   } catch (error) {
@@ -381,7 +387,7 @@ router.get('/dashboard/:roomId', authenticate, checkRoomAccess, async (req, res)
       timestamp: { $gte: sevenDaysAgo }
     })
       .sort({ timestamp: 1 })
-      .select('timestamp temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected altitude')
+      .select('timestamp temperature humidity coSensor1 coSensor2 co2 oxygen pulse smokeDetected fireDetected heat altitude')
       .limit(1000);
 
     res.json({

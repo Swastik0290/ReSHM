@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import {
   FiWind, FiCloud, FiAlertCircle, FiShield, FiCheckCircle,
   FiAlertTriangle, FiXCircle, FiActivity,
-  FiThermometer, FiDroplet
+  FiThermometer, FiDroplet, FiSun
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import './EnvironmentalSafety.css';
@@ -131,7 +131,7 @@ const BinaryCard = ({ icon, title, detected, noData, activeText, inactiveText, c
 /* ──────────────────────────────────────────────────────────
    Main Component
 ────────────────────────────────────────────────────────── */
-const EnvironmentalSafety = ({ coSensor1, co2, smokeDetected, fireDetected, temperature, humidity, hasData }) => {
+const EnvironmentalSafety = ({ coSensor1, co2, smokeDetected, fireDetected, heat, temperature, humidity, hasData }) => {
   const noData = !hasData;
 
   const co1 = getCoStatus(noData ? null : coSensor1);
@@ -198,13 +198,14 @@ const EnvironmentalSafety = ({ coSensor1, co2, smokeDetected, fireDetected, temp
           activeText="Smoke Present"
           inactiveText="No Smoke"
         />
+
         <BinaryCard
-          icon={<FaFire />}
-          title="Fire Detection"
-          detected={fireDetected}
+          icon={<FiSun />}
+          title="Heat Detection"
+          detected={heat}
           noData={noData}
-          activeText="Fire Detected"
-          inactiveText="No Fire"
+          activeText="High Heat"
+          inactiveText="Normal Level"
         />
       </div>
     </div>
