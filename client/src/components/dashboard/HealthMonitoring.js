@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { FiHeart, FiActivity, FiCheckCircle, FiAlertTriangle, FiXCircle } from 'react-icons/fi';
+import { FiHeart, FiActivity, FiCheckCircle, FiAlertTriangle, FiXCircle, FiWatch } from 'react-icons/fi';
 import './HealthMonitoring.css';
 
 /* ──────────────────────────────────────────────────────────
@@ -151,8 +151,11 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
     const spo2Status = getSpo2Status(spo2);
     const pulseStatus = getPulseStatus(pulse);
 
-    const hasSpo2Value = spo2 != null && !isNaN(spo2);
-    const hasPulseValue = pulse != null && !isNaN(pulse);
+    const hasSpo2Value = spo2 != null && !isNaN(spo2) && Number(spo2) > 0;
+    const hasPulseValue = pulse != null && !isNaN(pulse) && Number(pulse) > 0;
+
+    // Device is connected but no finger placed yet (both values are 0 / null)
+    const awaitingFinger = hasData && !hasSpo2Value && !hasPulseValue;
 
     return (
         <div className="health-panel">
@@ -171,7 +174,7 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
 
             {/* Body */}
             {!hasData ? (
-                /* ── Waiting state ── */
+                /* ── No device data at all ── */
                 <div className="health-waiting">
                     <div className="health-waiting-ring-wrap">
                         <span className="health-waiting-ring" />
@@ -179,6 +182,16 @@ const HealthMonitoring = ({ spo2, pulse, hasData, roomId: _roomId }) => {
                     </div>
                     <p className="health-waiting-title">Waiting for Data</p>
                     <p className="health-waiting-sub">Connect device to start receiving health readings</p>
+                </div>
+            ) : awaitingFinger ? (
+                /* ── Device live but no finger detected yet ── */
+                <div className="health-waiting">
+                    <div className="health-waiting-ring-wrap">
+                        <span className="health-waiting-ring" />
+                        <FiWatch className="health-waiting-heart" />
+                    </div>
+                    <p className="health-waiting-title">Place Finger on Probe</p>
+                    <p className="health-waiting-sub">Readings begin ~35 s after finger is detected</p>
                 </div>
             ) : (
                 <div className="health-cards-container">

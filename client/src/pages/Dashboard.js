@@ -15,14 +15,16 @@ const hasRoomAlert = (reading) => {
   if (!reading) return false;
   const co1 = Number(reading.coSensor1 ?? 0);
   const co2 = Number(reading.co2 ?? 0);
+  // pulse/oxygen of 0 means "no finger on sensor" — not a danger condition
+  const pulse = Number(reading.pulse ?? 0);
+  const oxygen = Number(reading.oxygen ?? 0);
   return (
     co1 >= CO_WARN ||
     co2 >= CO2_WARN ||
     reading.smokeDetected === true ||
     reading.fireDetected === true ||
-    Number(reading.oxygen ?? 99) < 90 ||
-    Number(reading.pulse ?? 75) >= 120 ||
-    Number(reading.pulse ?? 75) <= 40
+    (oxygen > 0 && oxygen < 90) ||
+    (pulse > 0 && (pulse >= 120 || pulse <= 40))
   );
 };
 
@@ -250,8 +252,8 @@ const Dashboard = () => {
         {/* RIGHT — Health Monitoring */}
         <div className="dashboard-col dashboard-col-right">
           <HealthMonitoring
-            spo2={hasReadings ? latest.oxygen : null}
-            pulse={hasReadings ? latest.pulse : null}
+            spo2={hasReadings && Number(latest.oxygen) > 0 ? latest.oxygen : null}
+            pulse={hasReadings && Number(latest.pulse) > 0 ? latest.pulse : null}
             hasData={hasReadings}
             roomId={roomId}
           />
