@@ -58,7 +58,7 @@ const Register = () => {
     <div className="login-container">
       <div className="login-card">
         <h1 className="login-title">Register</h1>
-        <p className="login-subtitle">Create your ReSHM account</p>
+        <p className="login-subtitle">Create your RSHM account</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}

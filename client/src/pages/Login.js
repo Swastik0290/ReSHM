@@ -45,8 +45,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">ReSHM</h1>
-        <p className="login-subtitle">Room Sensor Monitoring Dashboard</p>
+        <h1 className="login-title">RSHM</h1>
+        <p className="login-subtitle">Remote Safety and Health Monitoring</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}

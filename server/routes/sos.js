@@ -60,11 +60,11 @@ router.post('/', async (req, res) => {
             auth: authOptions
         });
 
-        const defaultSubject = '🚨 EMERGENCY: SOS Alert Triggered – ReSHM';
-        const defaultText = `An SOS alert was triggered from the ReSHM dashboard at ${new Date(timestamp || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.\n\nPlease check on the individual immediately.\n\n—\nReSHM Emergency Response System`;
+        const defaultSubject = '🚨 EMERGENCY: SOS Alert Triggered – RSHM';
+        const defaultText = `An SOS alert was triggered from the RSHM dashboard at ${new Date(timestamp || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.\n\nPlease check on the individual immediately.\n\n—\nRSHM Emergency Response System`;
 
         const mailOptions = {
-            from: `"ReSHM SOS" <${senderEmail}>`,
+            from: `"RSHM SOS" <${senderEmail}>`,
             to: emails.join(', '),
             subject: subject || defaultSubject,
             text: text || defaultText
