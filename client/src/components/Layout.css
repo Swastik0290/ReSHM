@@ -109,3 +109,19 @@
     left: 12px;
   }
 }
+
+/* ── Kiosk mode: 1024×600 — enforce single-page, no-scroll ── */
+@media (max-width: 1024px) and (max-height: 640px) {
+  .layout {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .layout-main {
+    height: 100vh;
+    overflow: hidden;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+}

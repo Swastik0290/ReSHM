@@ -232,3 +232,25 @@
 .dashboard-error {
   color: var(--error-text);
 }
+
+/* ── Kiosk mode: 1024×600 — everything must fit without scroll ── */
+@media (max-width: 1024px) and (max-height: 640px) {
+  .dashboard {
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .dashboard-header-bar {
+    padding: 8px 16px;
+    margin-bottom: 2px;
+    border-radius: 10px;
+  }
+
+  .dashboard-columns {
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+  }
+}
+
