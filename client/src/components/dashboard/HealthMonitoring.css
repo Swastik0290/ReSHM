@@ -363,12 +363,15 @@
 
   .health-cards-container {
     gap: 8px;
+    align-items: center;
   }
 
   .health-metric-card {
     padding: 12px;
     gap: 8px;
     border-radius: 12px;
+    flex: none;
+    width: 100%;
   }
 
   .spo2-gauge-svg {
