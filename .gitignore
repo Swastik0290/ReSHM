@@ -33,3 +33,15 @@ client/.next/
 
 # MongoDB data (if running locally)
 data/
+
+# User requested exclusions
+CORS_SETUP.md
+crud.md
+LOGIN_TROUBLESHOOTING.md
+package-lock.json
+package.json
+QUICK_DEPLOYMENT_GUIDE.md
+README.md
+test-vps-login.ps1
+VPS_BACKEND_DEPLOYMENT.md
+VPS_DEPLOYMENT_GUIDE.md
